@@ -2,7 +2,7 @@
 Written by squidKnight
 Last modified: 03/13/20
 Purpose: allow for easy control of motors by creating movement functions
-Staus: UNFINISHED, NOT TESTED
+Status: UNFINISHED, NOT TESTED
 */
 
 #include "portDefs.h"
