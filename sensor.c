@@ -15,9 +15,19 @@ int getIR(int sensor) //ask which infra-red sensor to read
   return (IRV / analogRead(sensor));// IRV/sensor output
 }
 
-int getUS(int sensor) //ask which ultra-sonic sensor to read
+int getUS(int Trig, int Echo) //ask which ultra-sonic sensor to read
 {
-  return 0;//PLACEHOLDER; need to know if it's an analog or digital sensor, provide the model so that its datasheet can be found
+  //Clear Trigger Pin
+  digitalWrite(Trig, LOW);
+  delayMicroseconds(2);
+  
+  //10 us pulse
+  digitalWrite(Trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trig, LOW);
+  //measure echo
+  long t = pulseIn(Echo, HIGH);
+  return (t * 0.017);//time * speed of sound (0.034 cm/us) / 2
 }
 
 //Placeholder, not used b/c it's easier just to check the encoder directly in the motor function(s)
