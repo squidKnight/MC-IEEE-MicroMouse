@@ -49,6 +49,10 @@ int forward(short int dist, short int speed) //move forward a specific distance 
 			positionR++;
 	}
 	
+	//done, turn off motors
+	analogWrite(MOTOR_LEFT, 0);
+	analogWrite(MOTOR_RIGHT, 0);
+	
 	//result output
 	Serial.print("Final left motor position: ");
 	Serial.print(positionL);
@@ -56,8 +60,4 @@ int forward(short int dist, short int speed) //move forward a specific distance 
 	Serial.print(positionR);
 	Serial.print("Approximate percent error from target distance: ");
 	Serial.print( ((positionL + positionR)/24.0) / target); //divided by 24 since average means divide by 2 and total rotations means divide by 12
-
-	//done, turn off motors
-	analogWrite(MOTOR_LEFT, 0);
-	analogWrite(MOTOR_RIGHT, 0);
 }
