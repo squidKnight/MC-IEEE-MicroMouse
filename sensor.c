@@ -15,5 +15,5 @@ int getIR(int sensor) //ask which infra-red sensor to read
 
 int getUS(int sensor) //ask which ultra-sonic sensor to read
 {
-  
+  return 0;//PLACEHOLDER
 }
