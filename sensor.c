@@ -1,4 +1,4 @@
-*
+*/
 Written by Mathazzar
 Last modified: 03/13/20
 Purpose: allow for easy control of sensors
@@ -16,3 +16,4 @@ int getIR(int sensor) //ask which infra-red sensor to read
 int getUS(int sensor) //ask which ultra-sonic sensor to read
 {
   
+}
