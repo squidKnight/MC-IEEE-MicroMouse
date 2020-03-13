@@ -10,7 +10,7 @@ Status: UNFINISHED, NOT TESTED
 int getIR(int sensor) //ask which infra-red sensor to read
 {
   //constant is using best-fit line, needs to be adjusted based on testing or apply actuall graph from datasheet of GP2Y0A21YK0F
-  return (27/analogRead(sensor));\\27V*cm constant/output
+  return (27/analogRead(sensor));//27V*cm constant/output
 }
 
 int getUS(int sensor) //ask which ultra-sonic sensor to read
