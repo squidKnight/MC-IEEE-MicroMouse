@@ -1,4 +1,4 @@
-*/
+/*
 Written by Mathazzar
 Last modified: 03/13/20
 Purpose: allow for easy control of sensors
