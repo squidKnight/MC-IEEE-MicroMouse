@@ -5,13 +5,16 @@ Purpose: hold all of the alorithm-related maze functions (scaning, solving, opti
 Status: UNFINISHED, NOT TESTED
 
 NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished movement/sensor functions once algorithm in stable
+NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
 */
 
 #define SIM_MODE //remove once outside of sim environment
 #define INFINITY 1024 //highly unlikely to ever have this value for a distance, so can be "infinity"
 
-void nodeInit();
-void scan(int (*nodeList)[256][3]);
+//need to put these declarations in a separate header file...
+void nodeInit(); //initialize nodeList
+void scan(int (*nodeList)[256][3]); //will A* be incorperated into this step?
+int nodeCheck(); //checks if current position is a node or not
 
 #ifdef SIM_MODE
 	#include "API.h"
@@ -21,7 +24,7 @@ void scan(int (*nodeList)[256][3]);
 		fprintf(stderr, "%s\n", text);
 		fflush(stderr);
 	}
-	
+
 	void translate() //translates cartesian system used in simulator to 16x16 matrix
 	{
 	}
@@ -58,12 +61,51 @@ void nodeInit() //initialize nodeList
 	}
 	simLog("\tAll possible nodes inilialized");
 	simLog("Initilization completed sucessfully!\n");
-	scan(&nodeList);
+	scan(&nodeList); //using pointer instead of global definition of nodeList (allows for potential to multi-thread)
 }
 
 void scan(int (*nodeList)[256][3]) //will A* be incorperated into this step?
 {
 	simLog("Begining maze scan...");
+	int dist = 0;
+	int direction = 0; //holds changes in orentation
+	while(nodeCheck() == 0) //NOTE: the simulator cannot detect walls that are not next to it (this implementation will need to change for physical bot)
+	{
+		API_moveForward();
+		dist ++; //this needs to be replaced with motor functions to determie wall lengths traveled
+	}
+	simLog("\tEncountered first non-forward case");
+}
+
+int nodeCheck() //checks if current position is a node or not
+{
+	//count number of avalible paths
+	int status, paths = 3;
+	if(API_wallFront())
+		paths--;
+	if(API_wallRight())
+		paths--;
+	if(API_wallLeft())
+		paths--;
+
+	//determine status
+	switch (paths)
+	{
+		case 0: //deadend
+			status = -1;
+			break;
+		case 1: //not a normal node: is it a corner or a clear path?
+			status = 0; //assume it will be a clear path
+			if(API_wallFront()) //corner condition
+				status = 2;
+			break;
+		case 2: //is a node, add to stack
+			status = 1;
+			break;
+		default:
+			status = -2; //should not happen...
+	}
+	return status;
 }
 
 void solve() //not sure if needed, may be able to do in scan() by nature of dijkstras
