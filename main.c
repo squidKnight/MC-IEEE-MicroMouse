@@ -6,10 +6,10 @@ Purpose: run the program on the simulator, which requires a main.c
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
 */
 
-void scan();
+void nodeInit();
 
 int main()
 {
-	scan();
+	nodeInit();
 	return 0;
 }
