@@ -1,6 +1,6 @@
 /*
 Written by squidKnight
-Last modified: 03/15/20
+Last modified: 03/16/20
 Purpose: hold all of the alorithm-related maze functions (scaning, solving, optimizing, etc.)
 Status: UNFINISHED, NOT TESTED
 
@@ -163,8 +163,10 @@ void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack 
 		}
 
 		if(nodeList[i-1][0] != 1024) //if a recorded node
-		fprintf(stderr, "\t\t\tRank of node %d: %d \n",nodeList[i-1][0],i);
-		fflush(stderr);
+		{
+			fprintf(stderr, "\t\t\tRank of node %d: %d \n",nodeList[i-1][0],i);
+			fflush(stderr);
+		}
 	}
 }
 
