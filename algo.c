@@ -9,8 +9,9 @@ NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished 
 NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
 */
 #include <stdbool.h>	
+#include <stdio.h>
+#include "API.h" //only needed for simulator use
 
-#define SIM_MODE //remove once outside of sim environment
 #define INFINITY 1024 //highly unlikely to ever have this value for a distance, so can be "infinity"
 
 //need to put these declarations in a separate header file...
@@ -23,23 +24,11 @@ void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in st
 //NOTE: if multithreading, remove from global scope and pass via pointers instead
 int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
 
-#ifdef SIM_MODE
-#include "API.h"
-#include <stdio.h>
-	void simLog(char* text) //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-	{
-		fprintf(stderr, "%s\n", text);
-		fflush(stderr);
-	}
-	
-	int translate(int x, int y) //translates values from cartesian system used in simulator to 16x16 matrix node IDs
-	{
-		int nodeID = (x + (y * 16) + 1); //conversion from cartesian to matrixi
-		fprintf(stderr, "\t\tNode ID: %d\n", nodeID);
-		fflush(stderr);
-		return nodeID;
-	}
-#endif
+void simLog(char* text) //modified from main.c in mms example (https://github.com/mackorone/mms-c)
+{
+	fprintf(stderr, "%s\n", text);
+	fflush(stderr);
+}
 
 void nodeInit() //initialize nodeList
 {
@@ -93,7 +82,7 @@ void scan() //will A* be incorperated into this step?
 		nodeClass = nodeCheck();
 	}
 	simLog("\tEncountered node:");
-	int nodeID = getID(direction, dist, position);
+	int nodeID = getID(direction, dist, position); //gets the ID at the current position
 
 	//do what needs to be done, depending on case
 	if(nodeClass == -1) //if deadend
@@ -112,18 +101,18 @@ void scan() //will A* be incorperated into this step?
 		nodeCurrent[2] = nodePrevious; //backpath
 		nodeCurrent[3] = 1; //is an explorable node
 		nodePrevious = nodeID; //current node will be the next one's backpath
-		stackInsert(nodeCurrent);
+		stackInsert(nodeCurrent); //inserts the node into the stack
 	}
 	if(nodeClass == 2) //if corner
 	{
 		simLog("\t\tNode class: Corner\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'G');
-		int nodeCurrent[4] = {}; //stores all information on current node
-		nodeCurrent[0] = nodeID; //node ID
-		nodeCurrent[1] = dist; //distance traveled
-		nodeCurrent[2] = nodePrevious; //backpath
+		int nodeCurrent[4] = {};
+		nodeCurrent[0] = nodeID;
+		nodeCurrent[1] = dist;
+		nodeCurrent[2] = nodePrevious;
 		nodeCurrent[3] = 0; //is NOT an explorable node
-		nodePrevious = nodeID; //current node will be the next one's backpath
+		nodePrevious = nodeID;
 		stackInsert(nodeCurrent);
 	}
 }
@@ -169,52 +158,6 @@ void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack 
 	}
 }
 
-int getID(int direction, int dist, int position[2]) //gets the ID of the current node
-{
-	//determine change based on direction
-	if(direction == 0) //if facing up
-		position[1] += dist; //y position increased (normally, this would be incremented in accordance to the matrix by recorded traveled distance)
-	if(direction == 1) //if facing down
-		position[1] -= dist;
-	if(direction == 2) //if facing right
-		position[0] += dist; //x position increased
-	if(direction == 3) //if facing left
-		position[0] -= dist;
-
-	//translate to matrix format, this can be removed once outside of simulator
-	return translate(position[0], position[1]);
-}
-
-int nodeCheck() //checks if current position is a node or not
-{
-	//count number of avalible paths
-	int status, paths = 3;
-	if(API_wallFront()) //NOTE: the simulator cannot detect walls that are not next to it (this implementation will need to change for physical bot)
-		paths--;
-	if(API_wallRight())
-		paths--;
-	if(API_wallLeft())
-		paths--;
-
-	//determine status
-	switch (paths)
-	{
-		case 0: //deadend
-			status = -1;
-			break;
-		case 1: //not a normal node: is it a corner or a clear path?
-			status = 0; //assume it will be a clear path
-			if(API_wallFront()) //corner condition
-				status = 2;
-			break;
-		case 2: //is a node, add to stack
-			status = 1;
-			break;
-		default:
-			status = -2; //should not happen...
-	}
-	return status;
-}
 
 void solve() //not sure if needed, may be able to do in scan() by nature of dijkstras
 {

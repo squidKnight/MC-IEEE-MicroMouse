@@ -10,6 +10,8 @@ FLAGS = -O3 #optimization flag
 OBJ = main.o \
 	  API.o \
 	  algo.o \
+	  nodeCheck.o \
+	  getID.o \
 
 %.o : %.c
 	$(COMP) ${FLAGS} -c -o $@ $<
