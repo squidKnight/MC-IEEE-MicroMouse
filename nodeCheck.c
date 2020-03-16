@@ -8,7 +8,7 @@ NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished 
 NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
 */
 
-#include "API.h" //onle needed for simulator usw
+#include "API.h" //only needed for simulator use
 
 int nodeCheck()
 {
