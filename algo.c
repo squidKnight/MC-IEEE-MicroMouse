@@ -8,6 +8,7 @@ NOTE: will probably need to divide functions into separate C files
 NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished movement/sensor functions once algorithm in stable
 NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
 */
+
 #include <stdbool.h>	
 #include <stdio.h>
 #include "API.h" //only needed for simulator use
@@ -15,20 +16,13 @@ NOTE: most of the simulator-based functions start with "API_" so any that have t
 #define INFINITY 1024 //highly unlikely to ever have this value for a distance, so can be "infinity"
 
 //need to put these declarations in a separate header file...
-void nodeInit(); //initialize nodeList
-void scan(); //scans the maze
 int nodeCheck(); //checks if current position is a node or not
 int getID(int direction, int dist, int position[2]); //gets the ID of the current node
 void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in stack based on distance
+void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
 //NOTE: if multithreading, remove from global scope and pass via pointers instead
 int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
-
-void simLog(char* text) //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-{
-	fprintf(stderr, "%s\n", text);
-	fflush(stderr);
-}
 
 void nodeInit() //initialize nodeList
 {
@@ -63,7 +57,6 @@ void nodeInit() //initialize nodeList
 	API_setText(8, 7, "Goal");
 
 	simLog("Initilization completed\n- - - - -");
-	scan();
 }
 
 void scan() //will A* be incorperated into this step?

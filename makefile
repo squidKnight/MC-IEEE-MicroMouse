@@ -12,6 +12,7 @@ OBJ = main.o \
 	  algo.o \
 	  nodeCheck.o \
 	  getID.o \
+	  simLog.o \
 
 %.o : %.c
 	$(COMP) ${FLAGS} -c -o $@ $<
