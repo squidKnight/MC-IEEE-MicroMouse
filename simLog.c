@@ -1,6 +1,6 @@
 /*
 Last modified: 03/16/20
-Purpose: hold all of the alorithm-related maze functions (scaning, solving, optimizing, etc.)
+Purpose: allow for easy printing to mms console
 
 NOTE: simulator-exclusive function
 */
