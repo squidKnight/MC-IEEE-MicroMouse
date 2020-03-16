@@ -8,6 +8,7 @@ NOTE: will probably need to divide functions into separate C files
 NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished movement/sensor functions once algorithm in stable
 NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
 */
+#include <stdbool.h>	
 
 #define SIM_MODE //remove once outside of sim environment
 #define INFINITY 1024 //highly unlikely to ever have this value for a distance, so can be "infinity"
@@ -17,7 +18,7 @@ void nodeInit(); //initialize nodeList
 void scan(); //scans the maze
 int nodeCheck(); //checks if current position is a node or not
 int getID(int direction, int dist, int position[2]); //gets the ID of the current node
-void stackInsert(int nodeCurrent[1][4]); //inserts new node into correct rank in stack based on distance
+void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in stack based on distance
 
 //NOTE: if multithreading, remove from global scope and pass via pointers instead
 int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
@@ -47,19 +48,19 @@ void nodeInit() //initialize nodeList
 	
 	//set all distances and backpaths to inifinity
 	int i, j;
-	for(i=2; i<254; i++) //node ID 0 does not exist and ID 1 is already recorded as start
+	for(i=0; i<256; i++)
 	{
-		for(j=0; j<3; j++)
+		for(j=0; j<4; j++)
 		{
 			nodeList[i][j] = INFINITY;
 		}
 	}
 
 	//initialize start node (which will be first in the stack)
-	nodeList[1][0] = 0; //set node ID to 1
-	nodeList[1][1] = 0; //set start point to have a distance of 0
-	nodeList[1][2] = 0; //set start point to have a backpath of 1 (to self)
-	nodeList[1][3] = 0; //set start point to have a node type of 0 (non-explorable, not a real node)
+	nodeList[0][0] = 1; //set node ID to 1
+	nodeList[0][1] = 0; //set start point to have a distance of 0
+	nodeList[0][2] = 1; //set start point to have a backpath of 1 (to self)
+	nodeList[0][3] = 0; //set start point to have a node type of 0 (non-explorable, not a real node)
 	API_setColor(0,0,'Y'); //visual mark
 	API_setText(0, 0, "start");
 
@@ -106,11 +107,11 @@ void scan() //will A* be incorperated into this step?
 		simLog("\t\tNode class: Path node\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'B');
 	
-		int nodeCurrent[1][4] = {}; //stores all information on current node
-		nodeCurrent[0][0] = nodeID; //node ID
-		nodeCurrent[0][1] = dist; //distance traveled
-		nodeCurrent[0][2] = nodePrevious; //backpath
-		nodeCurrent[0][3] = 1; //is an explorable node
+		int nodeCurrent[4] = {}; //stores all information on current node
+		nodeCurrent[0] = nodeID; //node ID
+		nodeCurrent[1] = dist; //distance traveled
+		nodeCurrent[2] = nodePrevious; //backpath
+		nodeCurrent[3] = 1; //is an explorable node
 		nodePrevious = nodeID; //current node will be the next one's backpath
 		stackInsert(nodeCurrent);
 	}
@@ -118,57 +119,53 @@ void scan() //will A* be incorperated into this step?
 	{
 		simLog("\t\tNode class: Corner\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'G');
-		int nodeCurrent[1][4] = {}; //stores all information on current node
-		nodeCurrent[0][0] = nodeID; //node ID
-		nodeCurrent[0][1] = dist; //distance traveled
-		nodeCurrent[0][2] = nodePrevious; //backpath
-		nodeCurrent[0][3] = 0; //is NOT an explorable node
+		int nodeCurrent[4] = {}; //stores all information on current node
+		nodeCurrent[0] = nodeID; //node ID
+		nodeCurrent[1] = dist; //distance traveled
+		nodeCurrent[2] = nodePrevious; //backpath
+		nodeCurrent[3] = 0; //is NOT an explorable node
 		nodePrevious = nodeID; //current node will be the next one's backpath
 		stackInsert(nodeCurrent);
 	}
 }
 
-void stackInsert(int nodeCurrent[1][4]) //adds new node into correct rank in stack based on distance
+void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack based on distance
 {
 	simLog("\t\tInserting node to stack...");
-	int i, j;
-	int tempArr[1][4] = {};
-	for(i=1; i<257; i++)
+	int i;
+	bool rankFound = 0; //becomes 1 when stack rank for new node is found
+	int tempArr[4] = {}; //temporary storage array to allow for swaping in stack
+	for(i=1; i<256; i++) //hope element 256 has nothing in it... (skipped in this loop)
 	{
-		if(nodeList[i-1][1] < nodeCurrent[0][1] && nodeList[i][1] > nodeCurrent[0][1]) //if node higher in stack is less in distance and node lower in stack is greater in distance  than current now (ie, distance of current node lies inbetween those two values)
+		if(nodeList[i-1][1] < nodeCurrent[1] && nodeList[i][1] > nodeCurrent[1]) //if node higher in stack is less in distance and node lower in stack is greater in distance  than current now (ie, distance of current node lies inbetween those two values)
+			rankFound = 1;
+
+		//starting inserting nodes down the stack
+		if(rankFound)
 		{
-			//move information of node in ranking below current node to temporary array
-			tempArr[0][0] = nodeList[i][0];
-			tempArr[0][1] = nodeList[i][1];
-			tempArr[0][2] = nodeList[i][2];
-			tempArr[0][3] = nodeList[i][3];
+			//store information of node in ranking below current node to temporary array
+			tempArr[0] = nodeList[i][0];
+			tempArr[1] = nodeList[i][1];
+			tempArr[2] = nodeList[i][2];
+			tempArr[3] = nodeList[i][3];
 
-			//insert information of current node where lesser-ranked node was
-			nodeList[i][0] = nodeCurrent[0][0];
-			nodeList[i][1] = nodeCurrent[0][1];
-			nodeList[i][2] = nodeCurrent[0][2];
-			nodeList[i][3] = nodeCurrent[0][3];
-			break;
+			//re-instate node in temporary storage back into stack
+			nodeList[i][0] = nodeCurrent[0];
+			nodeList[i][1] = nodeCurrent[1];
+			nodeList[i][2] = nodeCurrent[2];
+			nodeList[i][3] = nodeCurrent[3];
+
+			//treat the new node looking for a ranking as the new current node
+			nodeCurrent[0] = nodeList[i+1][0];
+			nodeCurrent[1] = nodeList[i+1][1];
+			nodeCurrent[2] = nodeList[i+1][2];
+			nodeCurrent[3] = nodeList[i+1][3];
 		}
-	}
 
-	//demote all nodes in lesser rankings
-	for(j=i+1; j<256; j++)
-	{
-		//move next node to be replaced into temporary storage
-		tempArr[0][0] = nodeList[j][0];
-		tempArr[0][1] = nodeList[j][1];
-		tempArr[0][2] = nodeList[j][2];
-		tempArr[0][3] = nodeList[j][3];
-
-		//insert information into one rank lower than previous position
-		nodeList[j+1][0] = tempArr[0][0];
-		nodeList[j+1][1] = tempArr[0][1];
-		nodeList[j+1][2] = tempArr[0][2];
-		nodeList[j+1][3] = tempArr[0][3];
+		if(nodeList[i-1][0] != 1024) //if a recorded node
+		fprintf(stderr, "\t\t\tRank of node %d: %d \n",nodeList[i-1][0],i);
+		fflush(stderr);
 	}
-	fprintf(stderr, "\t\tRank of new node: %d \n",i);
-	fflush(stderr);
 }
 
 int getID(int direction, int dist, int position[2]) //gets the ID of the current node
