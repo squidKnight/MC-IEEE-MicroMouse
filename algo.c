@@ -24,14 +24,14 @@ void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in st
 int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
 
 #ifdef SIM_MODE
-	#include "API.h"
-	#include <stdio.h>
+#include "API.h"
+#include <stdio.h>
 	void simLog(char* text) //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 	{
 		fprintf(stderr, "%s\n", text);
 		fflush(stderr);
 	}
-
+	
 	int translate(int x, int y) //translates values from cartesian system used in simulator to 16x16 matrix node IDs
 	{
 		int nodeID = (x + (y * 16) + 1); //conversion from cartesian to matrixi
@@ -39,13 +39,12 @@ int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimensi
 		fflush(stderr);
 		return nodeID;
 	}
-
 #endif
 
 void nodeInit() //initialize nodeList
 {
 	simLog("Initializing nodeList...");
-	
+
 	//set all distances and backpaths to inifinity
 	int i, j;
 	for(i=0; i<256; i++)
@@ -95,7 +94,7 @@ void scan() //will A* be incorperated into this step?
 	}
 	simLog("\tEncountered node:");
 	int nodeID = getID(direction, dist, position);
-	
+
 	//do what needs to be done, depending on case
 	if(nodeClass == -1) //if deadend
 	{
@@ -106,7 +105,7 @@ void scan() //will A* be incorperated into this step?
 	{
 		simLog("\t\tNode class: Path node\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'B');
-	
+
 		int nodeCurrent[4] = {}; //stores all information on current node
 		nodeCurrent[0] = nodeID; //node ID
 		nodeCurrent[1] = dist; //distance traveled
