@@ -63,7 +63,7 @@ void nodeInit() //initialize nodeList
 	API_setText(8, 7, "Goal");
 
 	simLog("Initilization completed\n- - - - -");
-	scan(); //using pointer instead of global definition of nodeList (allows for potential to multi-thread)
+	scan();
 }
 
 void scan() //will A* be incorperated into this step?
