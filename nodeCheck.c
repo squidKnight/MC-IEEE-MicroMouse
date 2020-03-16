@@ -32,7 +32,10 @@ int nodeCheck()
 			if(API_wallFront()) //corner condition
 				status = 2;
 			break;
-		case 2: //is a node, add to stack
+		case 2: //is a node
+			status = 1;
+			break;
+		case 3: //is also a node
 			status = 1;
 			break;
 		default:
