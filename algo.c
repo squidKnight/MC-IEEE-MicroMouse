@@ -62,8 +62,8 @@ void nodeInit() //initialize nodeList
 void scan() //will A* be incorperated into this step?
 {
 	int position[2] = {0, 0}; //current x and y position
-	int dist = 0; //0 = up, 1 = down, 2 = right, 3 = left
-	int direction = 0; //stores current orentation, 0 is starting orientation
+	int dist = 0; //total distance, do NOT reset!
+	int direction = 0; //stores current orentation, 0 is starting orientation (assumed to be upwards): 0 = up, 1 = down, 2 = right, 3 = left
 	int nodePrevious = 1; //stores the ID of the previous node
 
 	simLog("Begining maze scan...");
