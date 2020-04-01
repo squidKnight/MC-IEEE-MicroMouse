@@ -1,6 +1,6 @@
 /*
-Written by squidKnight
-Last modified: 03/16/20
+Written by squidKnight, Mathazzar
+Last modified: 03/31/20
 Purpose: hold all of the alorithm-related maze functions (scaning, solving, optimizing, etc.)
 Status: UNFINISHED, NOT TESTED
 
@@ -78,12 +78,15 @@ void scan() //will A* be incorperated into this step?
 	int nodeID = getID(direction, dist, position); //gets the ID at the current position
 
 	//do what needs to be done, depending on case
-	if(nodeClass == -1) //if deadend
+	switch(nodeClass)
+	{
+	case -1: //if deadend
 	{
 		simLog("\t\tNode class: Dead-end\n\t\tReturning to previous node...");
 		API_setColor(position[0], position[1], 'R');
+		break;
 	}
-	if(nodeClass == 1) //if maze node
+	case 1: //if maze node
 	{
 		simLog("\t\tNode class: Path node\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'B');
@@ -95,8 +98,9 @@ void scan() //will A* be incorperated into this step?
 		nodeCurrent[3] = 1; //is an explorable node
 		nodePrevious = nodeID; //current node will be the next one's backpath
 		stackInsert(nodeCurrent); //inserts the node into the stack
+		break;
 	}
-	if(nodeClass == 2) //if corner
+	case 2: //if corner
 	{
 		simLog("\t\tNode class: Corner\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'G');
@@ -107,6 +111,8 @@ void scan() //will A* be incorperated into this step?
 		nodeCurrent[3] = 0; //is NOT an explorable node
 		nodePrevious = nodeID;
 		stackInsert(nodeCurrent);
+		break;
+	}
 	}
 }
 
