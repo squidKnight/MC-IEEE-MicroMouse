@@ -22,7 +22,7 @@ void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in st
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
 //NOTE: if multithreading, remove from global scope and pass via pointers instead
-int nodeList[256][4] = {}; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
+int nodeList[256][4]; //first dimension is ranking in stack (second dimension: 0 = nodeID, 1= distance traveled from last node, 2 = backpath (previous node), 3 = node type (explorable or not))
 
 void nodeInit() //initialize nodeList
 {
@@ -91,7 +91,7 @@ void scan() //will A* be incorperated into this step?
 		simLog("\t\tNode class: Path node\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'B');
 
-		int nodeCurrent[4] = {}; //stores all information on current node
+		int nodeCurrent[4]; //stores all information on current node
 		nodeCurrent[0] = nodeID; //node ID
 		nodeCurrent[1] = dist; //distance traveled
 		nodeCurrent[2] = nodePrevious; //backpath
@@ -104,7 +104,7 @@ void scan() //will A* be incorperated into this step?
 	{
 		simLog("\t\tNode class: Corner\n\t\tRecording node information...");
 		API_setColor(position[0], position[1], 'G');
-		int nodeCurrent[4] = {};
+		int nodeCurrent[4];
 		nodeCurrent[0] = nodeID;
 		nodeCurrent[1] = dist;
 		nodeCurrent[2] = nodePrevious;
@@ -121,7 +121,7 @@ void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack 
 	simLog("\t\tInserting node to stack...");
 	int i;
 	bool rankFound = 0; //becomes 1 when stack rank for new node is found
-	int tempArr[4] = {}; //temporary storage array to allow for swaping in stack
+	int tempArr[4]; //temporary storage array to allow for swaping in stack
 	for(i=1; i<256; i++) //hope element 256 has nothing in it... (skipped in this loop)
 	{
 		if(nodeList[i-1][1] < nodeCurrent[1] && nodeList[i][1] > nodeCurrent[1]) //if node higher in stack is less in distance and node lower in stack is greater in distance  than current now (ie, distance of current node lies inbetween those two values)
