@@ -1,5 +1,5 @@
 /*
-Written by squidKnight
+Written by squidKnight, Mathazzar
 Last modified: 03/31/20
 Purpose: hold all of the alorithm-related maze functions (scaning, solving, optimizing, etc.)
 Status: UNFINISHED, NOT TESTED
