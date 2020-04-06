@@ -18,7 +18,7 @@ NOTE: most of the simulator-based functions start with "API_" so any that have t
 //need to put these declarations in a separate header file...
 int nodeCheck(); //checks if current position is a node or not
 int getID(int direction, int dist, int position[2]); //gets the ID of the current node
-void stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in stack based on distance
+bool stackInsert(int nodeCurrent[4]); //inserts new node into correct rank in stack based on distance
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
 //NOTE: if multithreading, remove from global scope and pass via pointers instead
@@ -116,19 +116,34 @@ void scan() //will A* be incorperated into this step?
 	}
 }
 
-void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack based on distance
+bool stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack based on distance
 {
 	simLog("\t\tInserting node to stack...");
-	int i;
 	bool rankFound = 0; //becomes 1 when stack rank for new node is found
 	int tempArr[4]; //temporary storage array to allow for swaping in stack
-	for(i=1; i<256; i++) //hope element 256 has nothing in it... (skipped in this loop)
+	for (int i = 1; i < 256; i++) //hope element 256 has nothing in it... (skipped in this loop)
 	{
-		if(nodeList[i-1][1] < nodeCurrent[1] && nodeList[i][1] > nodeCurrent[1]) //if node higher in stack is less in distance and node lower in stack is greater in distance  than current now (ie, distance of current node lies inbetween those two values)
+		if (nodeList[i - 1][0] != INFINITY) //if a recorded node
+		{
+			fprintf(stderr, "\t\t\tRank of node %d: %d \n", nodeList[i - 1][0], i);
+			fflush(stderr);
+		}
+
+		if ((nodeList[i - 1][1] < nodeCurrent[1]) && (nodeList[i][1] > nodeCurrent[1])) //if node higher in stack is less in distance and node lower in stack is greater in distance  than current node (ie, distance of current node lies inbetween those two values)
 			rankFound = 1;
+		//if the current node is a blank node, all existing nodes have been shifted over and the loop can end
+		//if the current node already exists on the stack, then it doesn't need to be added to the stack, and cthe loop can end
+		if (nodeCurrent[0] == INFINITY)//if current node is blank
+			return rankFound;
+		else if (nodeList[i][0] == nodeCurrent[0])//if current node has same ID
+		{
+			simLog("Node already exists.");
+			fflush(stderr);
+			return false;
+		}
 
 		//starting inserting nodes down the stack
-		if(rankFound)
+		if (rankFound)
 		{
 			//store information of node in ranking below current node to temporary array
 			tempArr[0] = nodeList[i][0];
@@ -136,25 +151,20 @@ void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack 
 			tempArr[2] = nodeList[i][2];
 			tempArr[3] = nodeList[i][3];
 
-			//re-instate node in temporary storage back into stack
+			//add current node to the stack
 			nodeList[i][0] = nodeCurrent[0];
 			nodeList[i][1] = nodeCurrent[1];
 			nodeList[i][2] = nodeCurrent[2];
 			nodeList[i][3] = nodeCurrent[3];
 
-			//treat the new node looking for a ranking as the new current node
-			nodeCurrent[0] = nodeList[i+1][0];
-			nodeCurrent[1] = nodeList[i+1][1];
-			nodeCurrent[2] = nodeList[i+1][2];
-			nodeCurrent[3] = nodeList[i+1][3];
-		}
-
-		if(nodeList[i-1][0] != 1024) //if a recorded node
-		{
-			fprintf(stderr, "\t\t\tRank of node %d: %d \n",nodeList[i-1][0],i);
-			fflush(stderr);
+			//treat the node in temporary storage as the new current node
+			nodeCurrent[0] = tempArr[0];
+			nodeCurrent[1] = tempArr[1];
+			nodeCurrent[2] = tempArr[2];
+			nodeCurrent[3] = tempArr[3];
 		}
 	}
+	simLog("ERROR: NO SPACE LEFT ON STACK");
 }
 
 
