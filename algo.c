@@ -59,7 +59,7 @@ void nodeInit() //initialize nodeList
 	simLog("Initilization completed\n- - - - -");
 }
 
-void scan() //will A* be incorperated into this step?
+/*void scan() //will A* be incorperated into this step?
 {
 	int position[2] = {0, 0}; //current x and y position
 	int dist = 0; //total distance, do NOT reset!
@@ -114,7 +114,7 @@ void scan() //will A* be incorperated into this step?
 		break;
 	}
 	}
-}
+}*/
 
 void stackInsert(int nodeCurrent[4]) //adds new node into correct rank in stack based on distance
 {
