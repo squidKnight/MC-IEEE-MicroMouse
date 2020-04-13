@@ -1,0 +1,6 @@
+#Anything added here will be ignored by git
+
+#results from make
+*.o
+*.x
+
