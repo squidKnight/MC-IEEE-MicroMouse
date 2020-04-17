@@ -98,6 +98,7 @@ void scan() //will A* be incorperated into this step?
 		nodeCurrent[3] = 1; //is an explorable node
 		nodePrevious = nodeID; //current node will be the next one's backpath
 		stackInsert(nodeCurrent); //inserts the node into the stack
+		//If moved, update distTotal since dist gets reset at beginning of loop
 		break;
 	}
 	case 2: //if corner
@@ -111,6 +112,7 @@ void scan() //will A* be incorperated into this step?
 		nodeCurrent[3] = 0; //is NOT an explorable node
 		nodePrevious = nodeID;
 		stackInsert(nodeCurrent);
+		//If moved, update distTotal since dist gets reset at beginning of loop
 		break;
 	}
 	}
