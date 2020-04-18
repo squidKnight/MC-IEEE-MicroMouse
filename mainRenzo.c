@@ -1,3 +1,22 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "API.h"
+
+void nodeInitialization(void);
+void scan(void);
+int nodeClassification(int NIN, int PathList[][3]);
+int choice(int NIN);
+void choseForward(void);
+void choseRight(void);
+void turnRight(void);
+void choseLeft(void);
+void turnLeft(void);
+int wallFront(void);
+int wallRight(void);
+int wallLeft(void);
+int calculate_heuristic_distance(int NIN);
+
 #define INF 1024
 #define NOPATHS 255
 #define WALL 9
@@ -8,18 +27,23 @@ int NodeList[256][5]; /*Node Identification Numbers: 1 - 256*/ /*Heuristic Dista
 int PathList[256][3]; /*Front path*/ /*Right path*/ /*Left path*/ /*NIN 0 is used to distinguish NIN from no path like INF is used to distinguish nodes and unknown nodes*/
 
 int orientation = 0; /*0 Up, 1 Down, 2 Right 3 Left*/
+int stepDistance = 0;
+int NIN = 1;
+int endGoal = 256;
+int distanceToGoal;
+int nodeClass;
 
-char Q1[1000] = "1a2a";
-char Q2[1000] = "";
-char Q3[1000] = "";
-char Q4[1000] = "";
+char Q3[] = "1a2a3a4a5a6a7a8a17a18a19a20a21a22a23a24a33a34a35a36a37a38a39a40a49a50a51a52a53a54a55a56a65a66a67a68a69a70a71a72a81a82a83a84a85a86a87a88a97a98a99a100a101a102a103a104";
+char Q4[] = "9a10a11a12a13a14a15a16a25a26a27a28a29a30a31a32a41a42a43a44a45a46a47a48a57a58a59a60a61a62a63a64a73a74a75a76a77a78a79a80a89a90a91a92a93a94a95a96a105a106a107a108a109a110a111a112a";
+char Q2[] = "129a130a131a132a133a134a135a145a146a147a148a149a150a151a152a161a162a163a164a165a166a167a168a177a178a179a180a181a182a183a184a193a194a195a196a197a198a199a200a209a210a211a212a213a214a215a216a225a226a227a228a229a230a231a232a241a242a243a244a245a246a247a248a";
+char Q1[] = "138a139a140a141a142a143a144a153a154a155a156a157a158a159a160a169a170a171a172a173a174a175a176a185a186a187a188a189a190a191a192a201a202a203a204a205a206a207a208a217a218a219a220a221a222a223a224a233a234a235a236a237a238a239a240a249a250a251a252a253a254a255a256a";
 
-//Motherboard
 int main()
 {
+	simLog("/*Start*/");
 	nodeInitialization();
 	scan();
-}
+}//end main
 
 //Initializes node list
 void nodeInitialization()
@@ -29,126 +53,216 @@ void nodeInitialization()
 	{
 		NodeList[i][0] = i + 1;//
 		NodeList[i][1] = INF;
-		//Backpath = 0
-		//Explorable/Not = 0
+		NodeList[i][2] = 0;
+		NodeList[i][3] = 0;
 		NodeList[i][4] = NOPATHS;
 	}
+	
+	API_setColor(0,0,'Y'); //visual mark
+	API_setText(0, 0, "start");
+	API_setColor(7,7,'Y');
+	API_setColor(7,8,'Y');
+	API_setColor(8,8,'Y');
+	API_setColor(8,7,'Y');
+	API_setText(7, 7, "Goal");
+	API_setText(7, 8, "Goal");
+	API_setText(8, 8, "Goal");
+	API_setText(8, 7, "Goal");
 
 	/*Node Identification Number*/ /*Heuristic Distance*/ /*Backpath*/ /*0||1*/ /*PathList*/
-	NodeList[0][0] = 1;//
-	NodeList[0][1] = MAXDIST; /*7 inward + 7 inward*/
-	NodeList[0][2] = 1; /*NULL == 0*/
-	NodeList[0][3] = 1; /*0 = Corner/Unexplorable || 1 = Explorable*/ //non-explorable
-	NodeList[0][4] = 0;/*PathList[0]*/
+	NodeList[1][0] = 1;//
+	NodeList[1][1] = MAXDIST; /*7 inward + 7 inward*/
+	NodeList[1][2] = 1; /*NULL == 0*/
+	NodeList[1][3] = 1; /*0 = Corner/Unexplorable || 1 = Explorable*/ //non-explorable //hmm 0 or 1 at S depends on maze and affects main()
+	NodeList[1][4] = 0;/*PathList[0]*/
 }//end initialization
 //confused Nodelist priority queue
 
 //Scans the maze
 void scan()
 {
-	int nextmove; //First move
-
 	/*S*/
-	int nodeClass = nodeClassification(1, PathList[1]); //1: StackInsert
-	NIN = 1;
+	nodeClass = nodeClassification(1, PathList[1]);
 
-	/*Choice*/
-	while (NIN != endGoal)
-	choice(NIN); //StackInsert //S B A //2
-
-		   //while not node move forward and navigate corners
-		   //gather options, place node in priority queue
-		   //return() //orientation tricky   	 		 /*StackInsert*and then 0/1 return()*/ /*explore all options*/
-		   //choose node [h] //3: 
-		   //arrive at node NIN = NodeID
-		   //while (NIN != endGoal)
-
-
-	//while (nodeClass == 0) //waits until there is a node detected
-	//{
-	//	API_moveForward();
-	//	dist++; //this needs to be replaced with motor functions to determie wall lengths traveled
-	//	nodeClass = nodeCheck();
-	//}
-	//int nodeID = getID(direction, dist, position);
-
-				  // Node B repeat path choice /*Deadend or node-to-node*/ pick one
-				//while not node move forward and navigate corners
-			//gather options, place node in priority queue
-		   //return /*explore all options*/
-		   //choose node [h]
-		   //arrive at node
-
-		   //END
-
-	//Classification
-	//choice
-	//[h] until END
-
-	//
-
-	/*Orientation*/
-
-	//to next node.
-
-		/*Cont. Scan*/
-		while (nodeClass == 0)
-		{
-			moveForward();
-			stepDistance++;
-			nodeClass = nodeClassification(NIN, PathList[NIN]);
+	//while (NIN != 120 && NIN != 121 && NIN != 136 && NIN != 137)
+	int i;
+	while (i < 10)
+	{
+		if (nodeClass == 0)
+        	{
+               		choseForward();
+               	 	nodeClass = nodeClassification(NIN, PathList[NIN]);
 		}
+		else if (nodeClass == 2)
+		{
+			if (PathList[NIN][3] != 0)
+			{
+				choseRight();
+				nodeClass = nodeClassification(NIN, PathList[NIN]);
+			}
+			else if (PathList[NIN][2] != 0)
+			{
+				choseLeft();
+				nodeClass = nodeClassification(NIN, PathList[NIN]);
+			}
+		}
+		else if (nodeClass == 1)
+		{
+			simLog("This is a node.\n");
+			choice(NIN);
+		}
+		else if (nodeClass == -1)
+		{
+			//what about /*explore all options
+			returnToNode();
+		}
+		i++;
+	}	
 }//end scan
 
 	/*-1 = Deadend || 0 = Clear Path || 1 = Explorable Node || 2 = Corner/Unexplorable Node*/
 //Classifies every node
-int nodeClassification(int NIN, int PathList[])
+int nodeClassification(int NIN, int PathList[NIN][3])
 {
-	int class, pathsAvailable = 3;
+	int pathsAvailable = 3;
 
 	/*Classify node by available paths*/
-	if (wallFront()) /*Front*/
+	if (orientation == 0)
 	{
-		pathsAvailable--;
+		if (wallFront()) /*Front*/
+		{
+			pathsAvailable--;
+		}
+		else
+		{
+			PathList[NIN][0] = NIN + 16;
+		}
+		if (wallRight()) /*Right*/
+		{
+			pathsAvailable--;
+		}
+		else
+		{
+			PathList[NIN][1] = NIN + 1;
+		}
+		if (wallLeft()) /*Left*/
+		{
+			pathsAvailable--;
+		}
+		else
+		{
+			PathList[NIN][2] = NIN - 1;
+		}
 	}
-	else
+	else if (orientation == 1)
 	{
-		PathList[0] = NIN + 16;
-	}
+		if (wallFront()) /*Front*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][0] = NIN - 16;
+                }
+                if (wallRight()) /*Right*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][1] = NIN - 1;
+                }
 
-	if (wallRight()) /*Right*/
-	{
-		pathsAvailable--;
-	}
-	else
-	{
-		PathList[1] = NIN + 1;
-	}
+                if (wallLeft()) /*Left*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][2] = NIN + 1;
+                }
 
-	if (wallLeft()) /*Left*/
-	{
-		pathsAvailable--;
 	}
-	else
-	{
-		PathList[2] = NIN - 1;
-	}
+	else if (orientation == 2)
+        {
+                if (wallFront()) /*Front*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][0] = NIN + 1;
+                }
+                if (wallRight()) /*Right*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][1] = NIN - 16;
+                }
+
+                if (wallLeft()) /*Left*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][2] = NIN + 16;
+                }
+        }
+        else if (orientation == 3)
+        {
+                if (wallFront()) /*Front*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][0] = NIN - 1;
+                }
+                if (wallRight()) /*Right*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][1] = NIN + 16;
+                }
+                if (wallLeft()) /*Left*/
+                {
+                        pathsAvailable--;
+                }
+                else
+                {
+                        PathList[NIN][2] = NIN - 1;
+                }
+        }
 
 	switch (pathsAvailable) /*Return classification of node*/
 	{
-	case 0: return class = -1; /*Deadend*/
-		break;
-	case 1: class = 0; /*Clear Path*/
-		if (wallFront())
-		{
-			return class = 2; /*Corner/Unexplorable Node*/
-		}
-		break;
-	case 2:
-	case 3: return class = 1; /*Explorable Node*/
-		break;
-	default: return class = -2; /*Should never happen*/
-		break;
+		case 0: simLog("Deadend\n");
+			return -1; /*Deadend*/
+			break;
+		case 1: /*Path*/
+			if (API_wallFront())
+			{	simLog("Corner\n");
+				return 2; /*Corner*/
+			}
+			else
+			{
+				simLog("Straight path\n");
+				return 0;
+			}
+			break;
+		case 2: simLog("Node\n");
+			return 1; /*Explorable Node*/
+			break;
+		case 3: simLog("Node\n");
+			return 1; /*Explorable Node*/
+			break;
+		default: return -2;
+			break;
 	}
 }//end classification
 
@@ -156,13 +270,13 @@ int nodeClassification(int NIN, int PathList[])
 int choice(int NIN)
 {
 	int i;
-	int min;
+	int min = 0;
 	int minimum = MAXDIST;
-	int choices;
-	int option1;
-	int option2;
-	int orientationoption1;
-	int orientationoption2;
+	int choices = 0;
+	int option1 = -1;
+	int option2 = -1;
+	int orientationoption1 = -1;
+	int orientationoption2 = -1;
 	int optimalchoice = -1;
 	int suboptimalchoice = -1;
 	int leastoptimalchoice = -1;
@@ -286,27 +400,56 @@ int choice(int NIN)
 	//choose [h]
 
 	//after [h] return to main	
+	
 }//end choice
 
 /*Movement*/
-//void return()
-//{
-//	;
-//}
+
+void returnToNode()
+{
+	API_turnRight();
+	API_turnRight();
+
+	while (nodeClass != 1)
+	{
+		choseForward();
+		nodeClass = nodeClassification(NIN, PathList[NIN]);
+	}
+}
 
 void choseForward()
 {
+	simLog("Moving forward\n");
+	if (orientation == 0)
+	{
+		NIN += 16;
+	}
+	else if (orientation == 1)
+	{
+		NIN -= 16;
+	}
+	else if (orientation == 2)
+	{
+		NIN += 1;
+	}
+	else if (orientation == 3)
+	{
+		NIN -= 1;
+	}
 	API_moveForward();
+
 	//while node
 	//motorR(1), motorL(1);
 	//turnleft
 	//turnright
 	//distancefromS++;
+	
 }//end forward movement
 
 void choseRight()
 {
-	turnRight();
+	simLog("Turning right\n");
+	turnRight(); //add a weight to dist
 	if (orientation == 0) /*Maintain orientation*/
 	{
 		orientation = 2;
@@ -328,16 +471,18 @@ void choseRight()
 void turnRight() //int deg for diagonals. void for now
 {
 	API_turnRight();
+
 	//if (deg == 45)
 	//motorR(-.5), motorL(.5); //#define HALF .5
 	//if (deg == 90)
 	//motorR(-1), motorL(1); //#define FULL 1
 	//distancefromS++ sqrt2
-	;
+	
 }//end right turn
 
 void choseLeft()
 {
+	simLog("Turning left\n");
 	turnLeft();
 	if (orientation == 0) /*Maintain orientation*/
 	{
@@ -359,7 +504,7 @@ void choseLeft()
 
 }
 
-void turnLeft(int deg)
+void turnLeft(void) //int deg for diagonals. void for now
 {
 	API_turnLeft();
 	//if (deg == 45)
@@ -367,17 +512,17 @@ void turnLeft(int deg)
 	//if (deg == 90)
 	//motorR(-1), motorL(1); //#define FULL 1
 	//distancefromS++ sqrt2
-	;
 }//end left turn
 
 /*Heuristic*/
-int calculuate_heuristic_distance(int NIN)
+int calculate_heuristic_distance(int NIN)
 {
-	char NINstr[1000] = itoa(NIN);
-	int distanceToGoal;
+	char NINstr[5];
+	snprintf(NINstr, 5,"%da",NIN);
+	//itoa(NIN, NINstr, 5);
+	int distanceToGoal = 0;
 	int goal;
-
-	strcat(NINstr, "a");
+	//strcat(NINstr, "a");
 
 	if (strcmp(NINstr, Q3))
 	{
@@ -442,9 +587,10 @@ int calculuate_heuristic_distance(int NIN)
 }//end heuristic distance
 
 /*Sensor*/
-int sensorFront;
+//int sensorFront;
 int wallFront()
 {
+	return API_wallFront();
 	//int walldist = (IRV / analogRead(sensorFront));
 	//if (walldist > WALL)
 	//{
@@ -456,10 +602,10 @@ int wallFront()
 	//}
 }//end front wall sensor
 
-int sensorRight;
+//int sensorRight;
 int wallRight()
 {
-	API_wallRight();
+	return API_wallRight();
 	//int walldist = (IRV / analogRead(sensorRight));
 	//if (walldist > WALL)
 	//{
@@ -471,10 +617,11 @@ int wallRight()
 	//}
 }//end right wall sensor
 
-int sensorLeft;
-int wallFront()
+//int sensorLeft;
+int wallLeft()
 {
-	API_wallLeft();
+	return API_wallLeft();
+
 	//int walldist = (IRV / analogRead(sensorLeft));
 	//if (walldist > WALL)
 	//{
@@ -484,8 +631,25 @@ int wallFront()
 	//{
 	//	return 0; //using 0 instead of 1
 	//}
-}//end left wall sensor
+	
+} //end left wall sensor
+
 /*End Sensor*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //if (nodeClass == -1) //if deadend
 //
