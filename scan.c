@@ -20,7 +20,7 @@ int backpath_classful(int position[2], short int direction);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int pathChooseAlt(int nodeCurrent[DATA], short int direction, int position[2]);
 
-void scan(int nodeList[256][DATA][3])
+void scan(int nodeList[NODES][DATA])
 {
 	int position[2] = { 0, 0 };
 	int distTotal = 0;
