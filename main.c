@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 04/7/20
+Last modified: 04/24/20
 Purpose: run the program on the simulator, which requires a main.c
 
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
@@ -8,10 +8,10 @@ NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
 
 #include "mouseDefs.h"
 
-int nodeList[256][DATA][3];
+int nodeList[NODES][DATA];
 
-void nodeInit(int nodeList[256][DATA][3]); //initialize nodeList
-void scan(int nodeList[256][DATA][3]); //scans the maze
+void nodeInit(int nodeList[NODES][DATA]); //initialize nodeList
+void scan(int nodeList[NODES][DATA]); //scans the maze
 
 int main()
 {
