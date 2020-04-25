@@ -1,3 +1,9 @@
+/*
+Written by squidKnight, Mathazzar
+Last modified: 04/24/20
+Purpose: scan the maze.
+*/
+
 #include <stdbool.h>
 #include <stdio.h>
 #include "API.h" //only needed for simulator use
@@ -32,39 +38,6 @@ void scan(int nodeList[256][DATA][3])
 		short int dist = 0;
 
 		//continue till next node
-		/*while (nodeCheck() == 0)
-		{
-			if (!API_wallFront())
-			{
-				API_moveForward();
-				dist++;
-				simLog(".");
-			}
-			else if (!API_wallRight())
-			{
-				updatePos(position, direction, dist);
-				simLog("\t\tEncountered corner...\n");
-				API_setColor(position[0], position[1], 'G');
-				API_turnRight();
-				direction = updateDir(direction, 1);
-				//distLastNode += dist + 1;
-				distTotal += dist;
-				API_moveForward();
-				dist = 1;
-			}
-			else if (!API_wallLeft())
-			{
-				updatePos(position, direction, dist);
-				simLog("\t\tEncountered corner...\n");
-				API_setColor(position[0], position[1], 'G');
-				API_turnLeft();
-				direction = updateDir(direction, 3);
-				//distLastNode += dist + 1;
-				distTotal += dist;
-				API_moveForward();
-				dist = 1;
-			}
-		}*/
 		distTotal = pathCheck(position, &direction);
 		simLog("\tEncountered node:");
 		//updatePos(position, direction, dist);
