@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 04/25/20
+Last modified: 04/26/20
 Purpose: scan the maze.
 */
 
@@ -18,7 +18,7 @@ short int pathChoose(int nodeCurrent[DATA], int paths, short int direction, int 
 int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
 int backpath_classful(int position[2], short int direction);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int pathChooseAlt(int nodeCurrent[DATA], short int direction, int position[2]);
+short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
 bool stackRemove(int nodeList[NODES][DATA], int rank);
 
 void scan(int nodeList[NODES][DATA])
@@ -92,7 +92,8 @@ void scan(int nodeList[NODES][DATA])
 			else //if node already on stack
 			{
 				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious); //add the new path
-				if (nodeList[rank][DIST] > distTotal) //is this route shorter? If so; update backpath.
+				//reasses if current backpath is still the shortest available route back to start
+				/*if (nodeList[rank][DIST] > distTotal) //is this route shorter? If so; update backpath. //has same problem as longer route case, but needs to check the childeren instead
 				{
 					int nodeCurrent[DATA]; //stores all information on current node
 					for (int i = 0; i < DATA; i++) //copy old node information to temporary array
@@ -124,9 +125,12 @@ void scan(int nodeList[NODES][DATA])
 					}
 
 					//resort the nodeList array
-				}
+				}*/
 
-				direction = pathChooseAlt(nodeList[rank], direction, position);
+				direction = pathChooseAlt(nodeList, direction, rank);
+				API_moveForward();
+				updatePos(position, direction, 1);
+				distLastNode = 1;
 			}
 			switch (direction) //if node fully explored
 			{
@@ -158,7 +162,7 @@ void scan(int nodeList[NODES][DATA])
 
 			nodePrevious = nodeID; //current node will be the next one's backpath
 		}
-		else if (nodeCheck() == -1)
+		else if (nodeCheck() == -1) //if node is a deadend
 		{
 			simLog("\t\tNode class: deadend\n\t\tReturning to previous node...");
 			API_setColor(position[0], position[1], 'R');
@@ -169,20 +173,24 @@ void scan(int nodeList[NODES][DATA])
 			direction = updateDir(direction, 2);
 			pathCheck(position, &direction);
 
-			//set direction as fully explored
+			//set direction as fully explored; treat it as a wall
 			switch (direction)
 			{
 			case 0: //facing up: came from bottom
 				nodeList[stack][EXP_B] = 1;
+				nodeList[stack][NODEID_B] = INFINITY;
 				break;
 			case 1: //facing right: came from left
 				nodeList[stack][EXP_L] = 1;
+				nodeList[stack][NODEID_L] = INFINITY;
 				break;
 			case 2: //facing down: came from top
 				nodeList[stack][EXP_T] = 1;
+				nodeList[stack][NODEID_T] = INFINITY;
 				break;
 			case 3: //facing left: came from right
 				nodeList[stack][EXP_R] = 1;
+				nodeList[stack][NODEID_R] = INFINITY;
 				break;
 			}
 			distTotal = nodeList[stack][DIST];
