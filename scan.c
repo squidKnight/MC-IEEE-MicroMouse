@@ -353,7 +353,18 @@ static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStac
 	}
 	switch (directionPrevious) //record this node as a route available to nodePrevious from its last exit direction
 	{
-
+	case 0:
+		nodeStack[NODEID_T] = nodeCurrent[NODEID];
+		break;
+	case 1:
+		nodeStack[NODEID_R] = nodeCurrent[NODEID];
+		break;
+	case 2:
+		nodeStack[NODEID_B] = nodeCurrent[NODEID];
+		break;
+	case 3:
+		nodeStack[NODEID_L] = nodeCurrent[NODEID];
+		break;
 	}
 	switch (updateDir(direction, 2)) //set backpath
 	{
