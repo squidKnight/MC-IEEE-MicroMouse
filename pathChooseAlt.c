@@ -1,9 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 04/26/20
+Last modified: 05/2/20
 Purpose: choose next direction to take at a revisited node.
-Status: UNFINISHED, NOT TESTED
-	still need to add code to handle direct loop-back case.
+Status: FINISHED, NOT TESTED
 */
 
 #include "API.h"
@@ -26,6 +25,7 @@ NOTES:
 	implemented to be called as:
 		direction = pathChooseAlt(nodeList, nodeCurrent, direction, position);
 		to set direction to new orientation once it has returned.
+	Doesn't check for direct loopbacks, they need to be checked externally before this function executes.
 CAUTION:
 	Manipulates the nodeList array passed to it directly.
 */
@@ -77,6 +77,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		break;
 	}
 
+	//Choose next available route, not previously traveled if possible
 	if ((nodeList[nodeCurrent][front] == 0) && (nodeList[nodeCurrent][expF] == 0)) //if front unexplored
 	{
 		simLog("Picking unexplored straight.");
