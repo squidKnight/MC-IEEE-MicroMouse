@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 04/26/20
+Last modified: 05/2/20
 Purpose: scan the maze.
 */
 
@@ -19,7 +19,7 @@ int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
 int backpath_classful(int position[2], short int direction);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
-bool stackRemove(int nodeList[NODES][DATA], int rank);
+int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode);
 
 void scan(int nodeList[NODES][DATA])
 {
@@ -31,6 +31,7 @@ void scan(int nodeList[NODES][DATA])
 	short int direction = 0; //stores current orientation, 0 is starting direction (assumed to be upwards): 0 = up, 1 = right, 2 = down, 3 = left
 	int nodePrevious = nodeList[0][0];
 	int stack = 0;
+	short int directionPrevious = direction; //stores direction that the last node exited from
 
 	simLog("Begining maze scan...");
 	while (1 == 1)
@@ -58,7 +59,7 @@ void scan(int nodeList[NODES][DATA])
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
-				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious);
+				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious);
 
 				//add node to stack
 				fprintf(stderr, "%d, %d, %d, %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L]);
@@ -84,54 +85,123 @@ void scan(int nodeList[NODES][DATA])
 				{
 					simLog("ERROR: expected node class to be 1, not -1 DEADEND");
 				}
-				//Move beyond current node
-				API_moveForward();
-				updatePos(position, direction, 1);
-				distLastNode = 1;
 			}
 			else //if node already on stack
 			{
-				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious); //add the new path
-				//reasses if current backpath is still the shortest available route back to start
-				/*if (nodeList[rank][DIST] > distTotal) //is this route shorter? If so; update backpath. //has same problem as longer route case, but needs to check the childeren instead
+				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious, directionPrevious); //add the new path
+				stack = rank;
+
+				if (nodePrevious == nodeID) //if a direct loopback occured
 				{
-					int nodeCurrent[DATA]; //stores all information on current node
-					for (int i = 0; i < DATA; i++) //copy old node information to temporary array
+					simLog("Direct loopback occured, treating as deadend.");
+					//Which direction is the loopback?
+					if (nodePrevious == nodeList[rank][NODEID_T])
 					{
-						nodeCurrent[i] = nodeList[rank][i];
+						switch (direction)
+						{
+						case 0:
+							nodeList[rank][EXP_B] = 1;
+							nodeList[rank][EXP_T] = 1;
+							break;
+						case 1:
+							nodeList[rank][EXP_L] = 1;
+							nodeList[rank][EXP_T] = 1;
+							break;
+						case 2:
+							simLog("Actual deadend, so there...");
+							break;
+						case 3:
+							nodeList[rank][EXP_R] = 1;
+							nodeList[rank][EXP_T] = 1;
+							break;
+						}
 					}
-					nodeCurrent[DIST] = distTotal; //new distance traveled
-					nodeCurrent[NODEID_P] = nodePrevious; //new backpath
-					stack = stackInsert(nodeList, nodeCurrent);
-					stackRemove(nodeList, rank); //remove the old entry from the stack
+					else if (nodePrevious == nodeList[rank][NODEID_R])
+					{
+						switch (direction)
+						{
+						case 0:
+							nodeList[rank][EXP_B] = 1;
+							nodeList[rank][EXP_R] = 1;
+							break;
+						case 1:
+							nodeList[rank][EXP_L] = 1;
+							nodeList[rank][EXP_R] = 1;
+							break;
+						case 2:
+							nodeList[rank][EXP_T] = 1;
+							nodeList[rank][EXP_R] = 1;
+							break;
+						case 3:
+							simLog("Actual deadend, so there...");
+							break;
+						}
+					}
+					else if (nodePrevious == nodeList[rank][NODEID_B])
+					{
+						switch (direction)
+						{
+						case 0:
+							simLog("Actual deadend, so there...");
+							break;
+						case 1:
+							nodeList[rank][EXP_L] = 1;
+							nodeList[rank][EXP_B] = 1;
+							break;
+						case 2:
+							nodeList[rank][EXP_T] = 1;
+							nodeList[rank][EXP_B] = 1;
+							break;
+						case 3:
+							nodeList[rank][EXP_R] = 1;
+							nodeList[rank][EXP_B] = 1;
+							break;
+						}
+					}
+					else if (nodePrevious == nodeList[rank][NODEID_L])
+					{
+						switch (direction)
+						{
+						case 0:
+							nodeList[rank][EXP_B] = 1;
+							nodeList[rank][EXP_L] = 1;
+							break;
+						case 1:
+							simLog("Actual deadend, so there...");
+							break;
+						case 2:
+							nodeList[rank][EXP_T] = 1;
+							nodeList[rank][EXP_L] = 1;
+							break;
+						case 3:
+							nodeList[rank][EXP_R] = 1;
+							nodeList[rank][EXP_L] = 1;
+							break;
+						}
+					}
+					else
+						simLog("ERROR: expected loopback, but can't find directionPrevious.");
 				}
-				else if ((nodeList[rank][DIST] + distLastNode) < distTotal) //is this route longer? //Do we care?? (much harder to implement)
+				else //reasses if current backpath is still the shortest available route back to start
 				{
-					//set new backpath
-					nodeList[stack][DIST] = nodeList[rank][DIST] + distLastNode; //new distance traveled
-					nodeList[stack][NODEID_P] = nodeID; //new backpath
-
-					//check all parents //would it be better to use a recursive function? Do we have the memory and processing power to handle recursion?
-					int rank2 = rank;
-					int stack2 = stack;
-					int nodeID2 = nodeID;
-					int diff = distLastNode;
-					while ((nodeList[rank2][DIST]) < (nodeList[stack2][DIST]))
+					if ((nodeList[stack][DIST] + distLastNode) < nodeList[rank][DIST]) //if new path is a shorter route for nodeCurrent
 					{
-						diff = nodeList[stack2][DIST] - nodeList[rank2][DIST];
-						//set new backpath
-						nodeList[stack2][DIST] = nodeList[rank2][DIST] + diff; //new distance traveled
-						nodeList[stack2][NODEID_P] = nodeID2; //new backpath
+						simLog("Shorter path for current node discovered; recalculating current node's backpath and its childeren's backpaths...");
+						rank = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
+						simLog("Resuming path selection...");
 					}
-
-					//resort the nodeList array
-				}*/
+					else if ((nodeList[rank][DIST] + distLastNode) < nodeList[stack][DIST]) //if new path is a shorter route for nodePrevious
+					{
+						simLog("Shorter path for previous node discovered; recalculating previous node's backpath and its childeren's backpaths...");
+						rank = stackBackpath(nodeList, nodePrevious, nodeID, distLastNode);
+						simLog("Resuming path selection...");
+					}
+				}
 
 				direction = pathChooseAlt(nodeList, direction, rank);
-				API_moveForward();
-				updatePos(position, direction, 1);
-				distLastNode = 1;
 			}
+			
+			//Move beyond current node
 			switch (direction) //if node fully explored
 			{
 			case 0:
@@ -159,8 +229,12 @@ void scan(int nodeList[NODES][DATA])
 				break;
 			}
 			}
+			API_moveForward();
+			updatePos(position, direction, 1);
+			distLastNode = 1;
 
 			nodePrevious = nodeID; //current node will be the next one's backpath
+			directionPrevious = direction; //record the current node's exit direction
 		}
 		else if (nodeCheck() == -1) //if node is a deadend
 		{
@@ -195,7 +269,7 @@ void scan(int nodeList[NODES][DATA])
 			}
 			distTotal = nodeList[stack][DIST];
 		}
-		
+
 		//vvvv debug code vvvv
 		if (position[0] < 0 || position[0] >= 16)
 		{
@@ -269,13 +343,17 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 	}
 }
 
-//nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID
-static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious)
+//nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction
+static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious)
 {
 	if (nodeStack[NODEID] != nodePrevious)
 	{
 		simLog("ERROR: nodeID missmatch.");
 		return false;
+	}
+	switch (directionPrevious) //record this node as a route available to nodePrevious from its last exit direction
+	{
+
 	}
 	switch (updateDir(direction, 2)) //set backpath
 	{
