@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/2/20
+Last modified: 05/8/20
 Purpose: scan the maze.
 */
 
@@ -14,12 +14,14 @@ int nodeCheck();
 void updatePos(int position[2], short int direction, short int dist);
 short int updateDir(short int direction, short int relativeChange);
 int getID(int position[2]);
-short int pathChoose(int nodeCurrent[DATA], int paths, short int direction, int position[2]);
 int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
-int backpath_classful(int position[2], short int direction);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
 int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode);
+int pathCheck(int position[2], short int *dire);
+
+static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall);
+static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious);
 
 void scan(int nodeList[NODES][DATA])
 {
@@ -59,10 +61,35 @@ void scan(int nodeList[NODES][DATA])
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
-				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious);
+				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious); //add backpath
+				/*
+				switch (direction) //set backpath
+				{
+				case 0: //facing up; it's down
+				{
+					nodeCurrent[NODEID_B] = nodePrevious;
+					break;
+				}
+				case 1: //facing right; it's left
+				{
+					nodeCurrent[NODEID_L] = nodePrevious;
+					break;
+				}
+				case 2: //facing down; it's up
+				{
+					nodeCurrent[NODEID_T] = nodePrevious;
+					break;
+				}
+				case 3: //facing left; it's right
+				{
+					nodeCurrent[NODEID_R] = nodePrevious;
+					break;
+				}
+				}
+				*/
 
 				//add node to stack
-				fprintf(stderr, "%d, %d, %d, %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L]);
+				fprintf(stderr, "%d, %d, %d, %d, direction: %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L], direction);
 				fflush(stderr);
 				stack = stackInsert(nodeList, nodeCurrent);
 
@@ -89,7 +116,6 @@ void scan(int nodeList[NODES][DATA])
 			else //if node already on stack
 			{
 				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious, directionPrevious); //add the new path
-				stack = rank;
 
 				if (nodePrevious == nodeID) //if a direct loopback occured
 				{
@@ -97,7 +123,7 @@ void scan(int nodeList[NODES][DATA])
 					//Which direction is the loopback?
 					if (nodePrevious == nodeList[rank][NODEID_T])
 					{
-						switch (direction)
+						switch (directionPrevious)
 						{
 						case 0:
 							nodeList[rank][EXP_B] = 1;
@@ -109,6 +135,7 @@ void scan(int nodeList[NODES][DATA])
 							break;
 						case 2:
 							simLog("Actual deadend, so there...");
+							nodeList[rank][EXP_T] = 1;
 							break;
 						case 3:
 							nodeList[rank][EXP_R] = 1;
@@ -118,7 +145,7 @@ void scan(int nodeList[NODES][DATA])
 					}
 					else if (nodePrevious == nodeList[rank][NODEID_R])
 					{
-						switch (direction)
+						switch (directionPrevious)
 						{
 						case 0:
 							nodeList[rank][EXP_B] = 1;
@@ -134,15 +161,17 @@ void scan(int nodeList[NODES][DATA])
 							break;
 						case 3:
 							simLog("Actual deadend, so there...");
+							nodeList[rank][EXP_R] = 1;
 							break;
 						}
 					}
 					else if (nodePrevious == nodeList[rank][NODEID_B])
 					{
-						switch (direction)
+						switch (directionPrevious)
 						{
 						case 0:
 							simLog("Actual deadend, so there...");
+							nodeList[rank][EXP_B] = 1;
 							break;
 						case 1:
 							nodeList[rank][EXP_L] = 1;
@@ -160,7 +189,7 @@ void scan(int nodeList[NODES][DATA])
 					}
 					else if (nodePrevious == nodeList[rank][NODEID_L])
 					{
-						switch (direction)
+						switch (directionPrevious)
 						{
 						case 0:
 							nodeList[rank][EXP_B] = 1;
@@ -168,6 +197,7 @@ void scan(int nodeList[NODES][DATA])
 							break;
 						case 1:
 							simLog("Actual deadend, so there...");
+							nodeList[rank][EXP_L] = 1;
 							break;
 						case 2:
 							nodeList[rank][EXP_T] = 1;
@@ -184,21 +214,39 @@ void scan(int nodeList[NODES][DATA])
 				}
 				else //reasses if current backpath is still the shortest available route back to start
 				{
+					fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fflush(stderr);
 					if ((nodeList[stack][DIST] + distLastNode) < nodeList[rank][DIST]) //if new path is a shorter route for nodeCurrent
 					{
 						simLog("Shorter path for current node discovered; recalculating current node's backpath and its childeren's backpaths...");
-						rank = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
+						int rankTest = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
+						if (rankTest != rank)
+						{
+							fprintf(stderr, "ERROR: recursive function thinks nodeCurrent is % d, when it should be %d.", rankTest, rank);
+							fflush(stderr);
+						}
 						simLog("Resuming path selection...");
 					}
 					else if ((nodeList[rank][DIST] + distLastNode) < nodeList[stack][DIST]) //if new path is a shorter route for nodePrevious
 					{
+						fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[stack][DIST], nodeList[stack][NODEID_P], nodeList[stack][NODEID_T], nodeList[stack][NODEID_R], nodeList[stack][NODEID_B], nodeList[stack][NODEID_L], nodeList[stack][EXP_T], nodeList[stack][EXP_R], nodeList[stack][EXP_B], nodeList[stack][EXP_L]);
+						fflush(stderr);
 						simLog("Shorter path for previous node discovered; recalculating previous node's backpath and its childeren's backpaths...");
-						rank = stackBackpath(nodeList, nodePrevious, nodeID, distLastNode);
+						int rankTest = stackBackpath(nodeList, nodePrevious, nodeID, distLastNode);
+						if (rankTest != stack)
+						{
+							fprintf(stderr, "ERROR: recursive function thinks nodePrevious is %d, when it should be %d.", rankTest, stack);
+							fflush(stderr);
+						}
 						simLog("Resuming path selection...");
 					}
 				}
 
-				direction = pathChooseAlt(nodeList, direction, rank);
+				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+				fflush(stderr);
+
+				direction = pathChooseAlt(nodeList, rank, direction);
+				stack = rank;
 			}
 			
 			//Move beyond current node
@@ -229,9 +277,17 @@ void scan(int nodeList[NODES][DATA])
 				break;
 			}
 			}
-			API_moveForward();
-			updatePos(position, direction, 1);
-			distLastNode = 1;
+			if (!API_wallFront())
+			{
+				API_moveForward();
+				updatePos(position, direction, 1);
+				distLastNode = 1;
+			}
+			else
+			{
+				simLog("FATAL ERROR: expected valid direction to be picked, but there's a wall in front.");
+				break;
+			}
 
 			nodePrevious = nodeID; //current node will be the next one's backpath
 			directionPrevious = direction; //record the current node's exit direction
@@ -241,7 +297,7 @@ void scan(int nodeList[NODES][DATA])
 			simLog("\t\tNode class: deadend\n\t\tReturning to previous node...");
 			API_setColor(position[0], position[1], 'R');
 
-			//return to last node
+			//return to last node, it will treat the deadend as a loopback
 			API_turnRight();
 			API_turnRight();
 			direction = updateDir(direction, 2);
@@ -273,14 +329,19 @@ void scan(int nodeList[NODES][DATA])
 		//vvvv debug code vvvv
 		if (position[0] < 0 || position[0] >= 16)
 		{
-			simLog("X position ERROR");
+			simLog("FATAL X position ERROR");
 			break;
 		}
 		if (position[1] < 0 || position[1] >= 16)
 		{
-			simLog("Y position ERROR");
+			simLog("FATAL Y position ERROR");
 			break;
 		}
+	}
+	for (int i = 0; i < NODES; i++)
+	{
+		fprintf(stderr, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", i, nodeList[i][NODEID], nodeList[i][DIST], nodeList[i][NODEID_P], nodeList[i][NODEID_T], nodeList[i][NODEID_R], nodeList[i][NODEID_B], nodeList[i][NODEID_L], nodeList[i][EXP_T], nodeList[i][EXP_R], nodeList[i][EXP_B], nodeList[i][EXP_L]);
+		fflush(stderr);
 	}
 }
 
@@ -297,6 +358,8 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
+			simLog("wall above");
+			nodeCurrent[NODEID_T] = INFINITY;
 			nodeCurrent[EXP_T] = 1;
 		}
 		break;
@@ -310,6 +373,8 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
+			simLog("wall right");
+			nodeCurrent[NODEID_R] = INFINITY;
 			nodeCurrent[EXP_R] = 1;
 		}
 		break;
@@ -323,6 +388,8 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
+			simLog("wall below");
+			nodeCurrent[NODEID_B] = INFINITY;
 			nodeCurrent[EXP_B] = 1;
 		}
 		break;
@@ -336,7 +403,9 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
-			nodeCurrent[EXP_L] = 0;
+			simLog("wall left");
+			nodeCurrent[NODEID_L] = INFINITY;
+			nodeCurrent[EXP_L] = 1;
 		}
 		break;
 	}
@@ -366,42 +435,90 @@ static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStac
 		nodeStack[NODEID_L] = nodeCurrent[NODEID];
 		break;
 	}
-	switch (updateDir(direction, 2)) //set backpath
+	switch (direction) //add new path to nodeCurrent
 	{
-	case 0:
+	case 0: //facing up; it's down
 	{
-		nodeCurrent[NODEID_T] = nodePrevious;
-		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-			nodeCurrent[EXP_T] = 1;
+		/*if (nodeCurrent[NODEID_B] == INFINITY)
+		{*/
+			nodeCurrent[NODEID_B] = nodePrevious;
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_B] = 1;
+			else
+				nodeCurrent[EXP_B] = 0;
+		/*}
+		else if (nodeCurrent[NODEID_B] == nodePrevious)
+		{
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_B] = 1;
+			else
+				nodeCurrent[EXP_B] = 0;
+		}
 		else
-			nodeCurrent[EXP_T] = 0;
+			simLog("Did we just come from a deadend?");*/
 		break;
 	}
-	case 1:
+	case 1: //facing right; it's left
 	{
-		nodeCurrent[NODEID_R] = nodePrevious;
-		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-			nodeCurrent[EXP_R] = 1;
+		/*if (nodeCurrent[NODEID_L] == INFINITY)
+		{*/
+			nodeCurrent[NODEID_L] = nodePrevious;
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_L] = 1;
+			else
+				nodeCurrent[EXP_L] = 0;
+		/*}
+		else if (nodeCurrent[NODEID_L] == nodePrevious)
+		{
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_B] = 1;
+			else
+				nodeCurrent[EXP_B] = 0;
+		}
 		else
-			nodeCurrent[EXP_R] = 0;
+			simLog("Did we just come from a deadend?");*/
 		break;
 	}
-	case 2:
+	case 2: //facing down; it's up
 	{
-		nodeCurrent[NODEID_B] = nodePrevious;
-		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-			nodeCurrent[EXP_B] = 1;
+		/*if (nodeCurrent[NODEID_T] == INFINITY)
+		{*/
+			nodeCurrent[NODEID_T] = nodePrevious;
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_T] = 1;
+			else
+				nodeCurrent[EXP_T] = 0;
+		/*}
+		else if (nodeCurrent[NODEID_T] == nodePrevious)
+		{
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_B] = 1;
+			else
+				nodeCurrent[EXP_B] = 0;
+		}
 		else
-			nodeCurrent[EXP_B] = 0;
+			simLog("Did we just come from a deadend?");*/
 		break;
 	}
-	case 3:
+	case 3: //facing left; it's right
 	{
-		nodeCurrent[NODEID_L] = nodePrevious;
-		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-			nodeCurrent[EXP_L] = 1;
+		/*if (nodeCurrent[NODEID_R] == INFINITY)
+		{*/
+			nodeCurrent[NODEID_R] = nodePrevious;
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_R] = 1;
+			else
+				nodeCurrent[EXP_R] = 0;
+		/*}
+		else if (nodeCurrent[NODEID_R] == nodePrevious)
+		{
+			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+				nodeCurrent[EXP_B] = 1;
+			else
+				nodeCurrent[EXP_B] = 0;
+		}
 		else
-			nodeCurrent[EXP_L] = 0;
+			simLog("Did we just come from a deadend?");*/
 		break;
 	}
 	}
