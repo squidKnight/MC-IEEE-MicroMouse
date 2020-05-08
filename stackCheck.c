@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 04/24/20
+Last modified: 05/8/20
 Purpose: check if the current node is already on the stack
 */
 
@@ -29,11 +29,13 @@ int stackCheck(int nodeList[NODES][DATA], int nodeCurrent) //checks new node for
 	int rankFound = INFINITY; //becomes rank of node on stack if new node is found already on the stack
 	for (int i = 0; i < 256; i++) //hope element 256 has nothing in it... (skipped in this loop)
 	{
+		/*
 		if (nodeList[i][0] != INFINITY) //print current ranking node to debug
 		{
 		fprintf(stderr, "\t\t\tRank of node %d: %d \n", nodeList[i][0], i);
 		fflush(stderr);
 		}
+		*/
 		
 		if (nodeList[i][0] == nodeCurrent) //if current node has same ID
 		{
