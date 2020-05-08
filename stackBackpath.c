@@ -1,19 +1,22 @@
 /*
 Written by Mathazzar
-Last modified: 05/2/20
+Last modified: 05/8/20
 Purpose: recursively check the backpath of nodeCurrent to update shortest route to start.
 Status: FINISHED, NOT TESTED
 */
 
 #include <stdbool.h>
 #include <stdio.h>
+//#include <stdlib.h>
 #include "API.h" //only needed for simulator use
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
-bool stackRemove(int nodeList[NODES][DATA], int rank);
+//int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
+//int stackRemove(int nodeList[NODES][DATA], int rank);
+
+static int abs(int x);
 
 /*int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode)
 INPUTS: int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode
@@ -37,68 +40,127 @@ CAUTION:
 */
 int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode)
 {
+	fprintf(stderr, "\tChecking NodeID %d...\n", nodeID);
+	fflush(stderr);
+	int rankID = stackCheck(nodeList, nodeID);
+	int rankPr = stackCheck(nodeList, nodePrevious);
 	//base case
-	if ((nodeList[stackCheck(nodeList, nodePrevious)][DIST] + distLastNode) >= nodeList[stackCheck(nodeList, nodeID)][DIST])
+	if ((nodeList[rankPr][DIST] + distLastNode) >= nodeList[rankID][DIST])
 	{
-		return stackCheck(nodeList, nodeID);
+		fprintf(stderr, "\t\tNodeID %d is fine.\n", nodeID);
+		fflush(stderr);
+		return rankID;
 	}
 	//recursive case:
-	else if ((nodeList[stackCheck(nodeList, nodePrevious)][DIST] + distLastNode) < nodeList[stackCheck(nodeList, nodeID)][DIST])
+	else if ((nodeList[rankPr][DIST] + distLastNode) < nodeList[rankID][DIST])
 	{
-		int distPrevious = nodeList[stackCheck(nodeList, nodeID)][DIST];
+		int distPrevious = nodeList[rankID][DIST];
 		//update nodeCurrent
-		nodeList[stackCheck(nodeList, nodeID)][DIST] = nodeList[stackCheck(nodeList, nodePrevious)][DIST] + distLastNode;
-		nodeList[stackCheck(nodeList, nodeID)][NODEID_P] = nodePrevious;
+		nodeList[rankID][DIST] = nodeList[rankPr][DIST] + distLastNode;
+		nodeList[rankID][NODEID_P] = nodePrevious;
 		
 		//check other directions
 		int diff;
-		if (nodeList[stackCheck(nodeList, nodeID)][NODEID_P] == nodeList[stackCheck(nodeList, nodeID)][NODEID_T]) //if new backpath is top
+		if ((nodeList[rankID][NODEID_P] == nodeList[rankID][NODEID_T])) //if new backpath is top
 		{
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B],  nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L], nodeID, diff);
+			if ((nodeList[rankID][NODEID_R] != 0) && (nodeList[rankID][NODEID_R] != INFINITY))
+			{
+				simLog("\t\tChecking right...0");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_R])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_R], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_B] != 0) && (nodeList[rankID][NODEID_B] != INFINITY))
+			{
+				simLog("\t\tChecking down...0");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_B])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_B], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_L] != 0) && (nodeList[rankID][NODEID_L] != INFINITY))
+			{
+				simLog("\t\tChecking left...0");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_L])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_L], nodeID, diff);
+			}
 		}
-		else if (nodeList[stackCheck(nodeList, nodeID)][NODEID_P] == nodeList[stackCheck(nodeList, nodeID)][NODEID_R]) //if new backpath is right
+		else if ((nodeList[rankID][NODEID_P] == nodeList[rankID][NODEID_R])) //if new backpath is right
 		{
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L], nodeID, diff);
+			if ((nodeList[rankID][NODEID_T] != 0) && (nodeList[rankID][NODEID_T] != INFINITY))
+			{
+				simLog("\t\tChecking up...1");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_T])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_T], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_B] != 0) && (nodeList[rankID][NODEID_B] != INFINITY))
+			{
+				simLog("\t\tChecking down...1");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_B])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_B], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_L] != 0) && (nodeList[rankID][NODEID_L] != INFINITY))
+			{
+				simLog("\t\tChecking left...1");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_L])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_L], nodeID, diff);
+			}
 		}
-		else if (nodeList[stackCheck(nodeList, nodeID)][NODEID_P] == nodeList[stackCheck(nodeList, nodeID)][NODEID_B]) //if new backpath is bottom
+		else if ((nodeList[rankID][NODEID_P] == nodeList[rankID][NODEID_B])) //if new backpath is bottom
 		{
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_L], nodeID, diff);
+			if ((nodeList[rankID][NODEID_T] != 0) && (nodeList[rankID][NODEID_T] != INFINITY))
+			{
+				simLog("\t\tChecking up...2");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_T])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_T], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_R] != 0) && (nodeList[rankID][NODEID_R] != INFINITY))
+			{
+				simLog("\t\tChecking right...2");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_R])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_R], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_L] != 0) && (nodeList[rankID][NODEID_L] != INFINITY))
+			{
+				simLog("\t\tChecking left...2");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_L])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_L], nodeID, diff);
+			}
 		}
-		else if (nodeList[stackCheck(nodeList, nodeID)][NODEID_P] == nodeList[stackCheck(nodeList, nodeID)][NODEID_L]) //if new backpath is left
+		else if ((nodeList[rankID][NODEID_P] == nodeList[rankID][NODEID_L])) //if new backpath is left
 		{
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_T], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_R], nodeID, diff);
-			diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B])][DIST]);
-			stackBackpath(nodeList, nodeList[stackCheck(nodeList, nodeID)][NODEID_B], nodeID, diff);
+			if ((nodeList[rankID][NODEID_T] != 0) && (nodeList[rankID][NODEID_T] != INFINITY))
+			{
+				simLog("\t\tChecking up...3");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_T])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_T], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_R] != 0) && (nodeList[rankID][NODEID_R] != INFINITY))
+			{
+				simLog("\t\tChecking right...3");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_R])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_R], nodeID, diff);
+			}
+			if ((nodeList[rankID][NODEID_B] != 0) && (nodeList[rankID][NODEID_B] != INFINITY))
+			{
+				simLog("\t\tChecking down...3");
+				diff = abs(distPrevious - nodeList[stackCheck(nodeList, nodeList[rankID][NODEID_B])][DIST]);
+				stackBackpath(nodeList, nodeList[rankID][NODEID_B], nodeID, diff);
+			}
 		}
 		else
 		{
 			simLog("ERROR: backpath is not equal to any recorded direction.");
-			return stackCheck(nodeList, nodeID);
+			return rankID;
 		}
 
-		//sort nodeList
+		/*
+		//sort nodeList //stack is simulating a quadruply-linked-list, it doesn't need to be sorted.
 		int rank = stackCheck(nodeList, nodeID);
 		int stack = stackInsert(nodeList, nodeList[rank]);
 		stackRemove(nodeList, rank);
 		return stack;
+		*/
+		fprintf(stderr, "\tNodeID %d has been recalculated.\n", nodeID);
+		fflush(stderr);
+		return rankID;
 	}
 	else
 	{
@@ -157,3 +219,11 @@ recursive case: current node is further from start than updated path
 	else
 		ERROR: not possible for nodePrevious dist to neither be >= or < nodeCurrent dist
 */
+
+static int abs(int x)
+{
+	if (x < 0)
+		return x*-1;
+	else
+		return x;
+}
