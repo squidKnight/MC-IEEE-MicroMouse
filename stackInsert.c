@@ -1,7 +1,8 @@
 /*
-Written by Mathazzar
-Last modified: 04/24/20
+Written by SquidKnight, Mathazzar
+Last modified: 05/13/20
 Purpose: add the current node to the stack
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -42,7 +43,7 @@ int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
 
 		if (nodeCurrent[NODEID] == INFINITY) //if current node is blank
 		{
-			simLog("All nodes on stack checked.");
+			//simLog("All nodes on stack checked.");
 			return stack;
 		}
 		else if (nodeList[i][NODEID] == nodeCurrent[0]) //if current node has same ID
