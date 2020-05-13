@@ -1,7 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/8/20
+Last modified: 05/13/20
 Purpose: scan the maze.
+Status: UNFINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -62,31 +63,6 @@ void scan(int nodeList[NODES][DATA])
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
 				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious); //add backpath
-				/*
-				switch (direction) //set backpath
-				{
-				case 0: //facing up; it's down
-				{
-					nodeCurrent[NODEID_B] = nodePrevious;
-					break;
-				}
-				case 1: //facing right; it's left
-				{
-					nodeCurrent[NODEID_L] = nodePrevious;
-					break;
-				}
-				case 2: //facing down; it's up
-				{
-					nodeCurrent[NODEID_T] = nodePrevious;
-					break;
-				}
-				case 3: //facing left; it's right
-				{
-					nodeCurrent[NODEID_R] = nodePrevious;
-					break;
-				}
-				}
-				*/
 
 				//add node to stack
 				fprintf(stderr, "%d, %d, %d, %d, direction: %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L], direction);
@@ -222,7 +198,7 @@ void scan(int nodeList[NODES][DATA])
 						int rankTest = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
 						if (rankTest != rank)
 						{
-							fprintf(stderr, "ERROR: recursive function thinks nodeCurrent is % d, when it should be %d.", rankTest, rank);
+							fprintf(stderr, "ERROR: recursive function thinks nodeCurrent is %d, when it should be %d.", rankTest, rank);
 							fflush(stderr);
 						}
 						simLog("Resuming path selection...");
@@ -255,29 +231,49 @@ void scan(int nodeList[NODES][DATA])
 			case 0:
 			{
 				if ((nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_B] == 1) && (nodeList[stack][EXP_L] == 1))
+				{
 					nodeList[stack][EXP_T] = 1;
+					API_setColor(position[0], position[1], 'Y');
+					fprintf(stderr, "node %d fully explored, exiting up.\nNODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fflush(stderr);
+				}
 				break;
 			}
 			case 1:
 			{
 				if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_B] == 1) && (nodeList[stack][EXP_L] == 1))
+				{
 					nodeList[stack][EXP_R] = 1;
+					API_setColor(position[0], position[1], 'Y');
+					fprintf(stderr, "node %d fully explored, exiting right.\nNODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fflush(stderr);
+				}
 				break;
 			}
 			case 2:
 			{
 				if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_L] == 1))
+				{
 					nodeList[stack][EXP_B] = 1;
+					API_setColor(position[0], position[1], 'Y');
+					fprintf(stderr, "node %d fully explored, exiting down.\nNODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fflush(stderr);
+				}
 				break;
 			}
 			case 3:
 			{
 				if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_B] == 1))
+				{
 					nodeList[stack][EXP_L] = 1;
+					API_setColor(position[0], position[1], 'Y');
+					fprintf(stderr, "node %d fully explored, exiting left.\nNODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fflush(stderr);
+				}
 				break;
 			}
 			}
-			if (!API_wallFront())
+			if (!API_wallFront()) //verify that this is a valid move to prevent position errors
 			{
 				API_moveForward();
 				updatePos(position, direction, 1);
@@ -301,6 +297,7 @@ void scan(int nodeList[NODES][DATA])
 			API_turnRight();
 			API_turnRight();
 			direction = updateDir(direction, 2);
+			nodePrevious = getID(position); //set as nodePrevious to force error on addNodePath() because stack doesn't match
 			pathCheck(position, &direction);
 
 			//set direction as fully explored; treat it as a wall
@@ -358,7 +355,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
-			simLog("wall above");
+			//simLog("wall above");
 			nodeCurrent[NODEID_T] = INFINITY;
 			nodeCurrent[EXP_T] = 1;
 		}
@@ -373,7 +370,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
-			simLog("wall right");
+			//simLog("wall right");
 			nodeCurrent[NODEID_R] = INFINITY;
 			nodeCurrent[EXP_R] = 1;
 		}
@@ -388,7 +385,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
-			simLog("wall below");
+			//simLog("wall below");
 			nodeCurrent[NODEID_B] = INFINITY;
 			nodeCurrent[EXP_B] = 1;
 		}
@@ -403,7 +400,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 		}
 		else if (wall)
 		{
-			simLog("wall left");
+			//simLog("wall left");
 			nodeCurrent[NODEID_L] = INFINITY;
 			nodeCurrent[EXP_L] = 1;
 		}
@@ -415,7 +412,9 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 //nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction
 static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious)
 {
-	if (nodeStack[NODEID] != nodePrevious)
+	fprintf(stderr, "adding nodePrevious (%d) as path connected to nodeCurrent (%d).\n", nodePrevious, nodeCurrent[NODEID]);
+	fflush(stderr);
+	if (nodeStack[NODEID] != nodePrevious) //verify nodePrevious is the same node as nodeStack passed to function. If nodePrevious was a deadend, it should result in this, preventing incorrect edits.
 	{
 		simLog("ERROR: nodeID missmatch.");
 		return false;
@@ -439,86 +438,38 @@ static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStac
 	{
 	case 0: //facing up; it's down
 	{
-		/*if (nodeCurrent[NODEID_B] == INFINITY)
-		{*/
-			nodeCurrent[NODEID_B] = nodePrevious;
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_B] = 1;
-			else
-				nodeCurrent[EXP_B] = 0;
-		/*}
-		else if (nodeCurrent[NODEID_B] == nodePrevious)
-		{
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_B] = 1;
-			else
-				nodeCurrent[EXP_B] = 0;
-		}
+		nodeCurrent[NODEID_B] = nodePrevious;
+		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+			nodeCurrent[EXP_B] = 1;
 		else
-			simLog("Did we just come from a deadend?");*/
+			nodeCurrent[EXP_B] = 0;
 		break;
 	}
 	case 1: //facing right; it's left
 	{
-		/*if (nodeCurrent[NODEID_L] == INFINITY)
-		{*/
-			nodeCurrent[NODEID_L] = nodePrevious;
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_L] = 1;
-			else
-				nodeCurrent[EXP_L] = 0;
-		/*}
-		else if (nodeCurrent[NODEID_L] == nodePrevious)
-		{
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_B] = 1;
-			else
-				nodeCurrent[EXP_B] = 0;
-		}
+		nodeCurrent[NODEID_L] = nodePrevious;
+		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+			nodeCurrent[EXP_L] = 1;
 		else
-			simLog("Did we just come from a deadend?");*/
+			nodeCurrent[EXP_L] = 0;
 		break;
 	}
 	case 2: //facing down; it's up
 	{
-		/*if (nodeCurrent[NODEID_T] == INFINITY)
-		{*/
-			nodeCurrent[NODEID_T] = nodePrevious;
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_T] = 1;
-			else
-				nodeCurrent[EXP_T] = 0;
-		/*}
-		else if (nodeCurrent[NODEID_T] == nodePrevious)
-		{
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_B] = 1;
-			else
-				nodeCurrent[EXP_B] = 0;
-		}
+		nodeCurrent[NODEID_T] = nodePrevious;
+		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+			nodeCurrent[EXP_T] = 1;
 		else
-			simLog("Did we just come from a deadend?");*/
+			nodeCurrent[EXP_T] = 0;
 		break;
 	}
 	case 3: //facing left; it's right
 	{
-		/*if (nodeCurrent[NODEID_R] == INFINITY)
-		{*/
-			nodeCurrent[NODEID_R] = nodePrevious;
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_R] = 1;
-			else
-				nodeCurrent[EXP_R] = 0;
-		/*}
-		else if (nodeCurrent[NODEID_R] == nodePrevious)
-		{
-			if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
-				nodeCurrent[EXP_B] = 1;
-			else
-				nodeCurrent[EXP_B] = 0;
-		}
+		nodeCurrent[NODEID_R] = nodePrevious;
+		if ((nodeStack[EXP_T] == 1) && (nodeStack[EXP_R] == 1) && (nodeStack[EXP_B] == 1) && (nodeStack[EXP_L] == 1))
+			nodeCurrent[EXP_R] = 1;
 		else
-			simLog("Did we just come from a deadend?");*/
+			nodeCurrent[EXP_R] = 0;
 		break;
 	}
 	}
