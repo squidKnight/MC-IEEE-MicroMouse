@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 05/8/20
+Last modified: 05/13/20
 Purpose: choose next direction to take at a revisited node.
-Status: FINISHED, NOT TESTED
+Status: UNFINISHED, PARTIALLY TESTED
 */
 
 #include "API.h"
@@ -105,17 +105,29 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		{
 			simLog("Checking explorability in front...");
 			if (nodeList[rank][NODEID_T] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][front] != 1) && (nodeList[rank][NODEID_T] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expF] != 1) && (nodeList[rank][EXP_T] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expF] = 1;
+					simLog("Front already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_R] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][front] != 1) && (nodeList[rank][NODEID_R] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expF] != 1) && (nodeList[rank][EXP_R] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expF] = 1;
+					simLog("Front already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_B] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][front] != 1) && (nodeList[rank][NODEID_B] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expF] != 1) && (nodeList[rank][EXP_B] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expF] = 1;
+					simLog("Front already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_L] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][front] != 1) && (nodeList[rank][NODEID_L] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expF] != 1) && (nodeList[rank][EXP_L] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expF] = 1;
+					simLog("Front already explored, moving on.");
+				}
 			else
 				simLog("ERROR: nodes don't link up.");
 		}
@@ -124,17 +136,45 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		{
 			simLog("Checking explorability to left...");
 			if (nodeList[rank][NODEID_T] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][left] != 1) && (nodeList[rank][NODEID_T] == 1)) //if explored; copy data
+			{
+				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+				fflush(stderr);
+				if ((nodeList[nodeCurrent][expL] != 1) && (nodeList[rank][EXP_T] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expL] = 1;
+					simLog("Left already explored, moving on.");
+				}
+				else
+					simLog("Left not fully explored yet.T");
+			}
 			else if (nodeList[rank][NODEID_R] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][left] != 1) && (nodeList[rank][NODEID_R] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expL] != 1) && (nodeList[rank][EXP_R] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expL] = 1;
+					simLog("Left already explored, moving on.");
+				}
+				else
+					simLog("Left not fully explored yet.T");
 			else if (nodeList[rank][NODEID_B] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][left] != 1) && (nodeList[rank][NODEID_B] == 1)) //if explored; copy data
+			{
+				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+				fflush(stderr);
+				if ((nodeList[nodeCurrent][expL] != 1) && (nodeList[rank][EXP_B] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expL] = 1;
+					simLog("Left already explored, moving on.");
+				}
+				else
+					simLog("Left not fully explored yet.B");
+			}
 			else if (nodeList[rank][NODEID_L] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][left] != 1) && (nodeList[rank][NODEID_L] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expL] != 1) && (nodeList[rank][EXP_L] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expL] = 1;
+					simLog("Left already explored, moving on.");
+				}
+				else
+					simLog("Left not fully explored yet.L");
 			else
 				simLog("ERROR: nodes don't link up.");
 		}
@@ -143,17 +183,29 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		{
 			simLog("Checking explorability to right...");
 			if (nodeList[rank][NODEID_T] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][right] != 1) && (nodeList[rank][NODEID_T] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expR] != 1) && (nodeList[rank][EXP_T] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expR] = 1;
+					simLog("Right already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_R] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][right] != 1) && (nodeList[rank][NODEID_R] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expR] != 1) && (nodeList[rank][EXP_R] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expR] = 1;
+					simLog("Right already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_B] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][right] != 1) && (nodeList[rank][NODEID_B] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expR] != 1) && (nodeList[rank][EXP_B] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expR] = 1;
+					simLog("Right already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_L] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][right] != 1) && (nodeList[rank][NODEID_L] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expR] != 1) && (nodeList[rank][EXP_L] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expR] = 1;
+					simLog("Right already explored, moving on.");
+				}
 			else
 				simLog("ERROR: nodes don't link up.");
 		}
@@ -162,17 +214,29 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		{
 			simLog("Checking explorability behind...");
 			if (nodeList[rank][NODEID_T] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][back] != 1) && (nodeList[rank][NODEID_T] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expB] != 1) && (nodeList[rank][EXP_T] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expB] = 1;
+					simLog("Back already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_R] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][back] != 1) && (nodeList[rank][NODEID_R] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expB] != 1) && (nodeList[rank][EXP_R] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expB] = 1;
+					simLog("Back already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_B] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][back] != 1) && (nodeList[rank][NODEID_B] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expB] != 1) && (nodeList[rank][EXP_B] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expB] = 1;
+					simLog("Back already explored, moving on.");
+				}
 			else if (nodeList[rank][NODEID_L] == nodeList[nodeCurrent][NODEID])
-				if ((nodeList[nodeCurrent][back] != 1) && (nodeList[rank][NODEID_L] == 1)) //if explored; copy data
+				if ((nodeList[nodeCurrent][expB] != 1) && (nodeList[rank][EXP_L] == 1)) //if explored; copy data
+				{
 					nodeList[nodeCurrent][expB] = 1;
+					simLog("Back already explored, moving on.");
+				}
 			else
 				simLog("ERROR: nodes don't link up.");
 		}
@@ -225,7 +289,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 			return dire;
 		}
 		if (paths == 0)
-			simLog("ERROR: no paths available, boxed in.");
+			simLog("ERROR: no paths available, boxed in."); //Maze isn't necessarily fully explored, need to check for next unexplored path
 		
 		if (nodeList[nodeCurrent][expF] == 0)
 		{
