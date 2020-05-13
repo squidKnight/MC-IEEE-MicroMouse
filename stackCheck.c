@@ -1,7 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 05/8/20
+Last modified: 05/13/20
 Purpose: check if the current node is already on the stack
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -20,7 +21,7 @@ RETURNS: int rankFound
 */
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent) //checks new node for int it's already in the stack based on nodeID
 {
-	simLog("\t\tChecking if node is already on stack...");
+	//simLog("\t\tChecking if node is already on stack...");
 	if (nodeCurrent == INFINITY) //if current node is blank
 	{
 		simLog("ERROR: Blank Node");
