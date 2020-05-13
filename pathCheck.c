@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 04/24/20
+Last modified: 05/13/20
 Purpose: move to next node.
 Status: FINISHED, TESTED
 */
@@ -25,15 +25,14 @@ RETURNS: int distLastNode, short int *dire
 NOTES:
 	Implemented to be called as:
 		distLastNode = checkPath(position, &dire);
-	Assumes the micromouse is currently at a node and that it is facing the desired direction of travel.
 CAUTION:
 	Manipulates the direction variable passed to it directly using pointers, requires the & prefix to update the direction and remember the new orientation externally.
 */
 int pathCheck(int position[2], short int *dire)
 {
-	API_moveForward();
-	int dist = 1;
+	int dist = 0;
 	int distLastNode = 0;
+
 	while (nodeCheck() == 0)
 	{
 		if (!API_wallFront())
@@ -43,7 +42,7 @@ int pathCheck(int position[2], short int *dire)
 		else if (!API_wallRight())
 		{
 			updatePos(position, *dire, dist);
-			simLog("\t\tEncountered corner...\n");
+			//simLog("\t\tEncountered corner...\n");
 			API_setColor(position[0], position[1], 'G');
 			API_turnRight();
 			distLastNode += dist + 1;
@@ -53,7 +52,7 @@ int pathCheck(int position[2], short int *dire)
 		else if (!API_wallLeft())
 		{
 			updatePos(position, *dire, dist);
-			simLog("\t\tEncountered corner...\n");
+			//simLog("\t\tEncountered corner...\n");
 			API_setColor(position[0], position[1], 'G');
 			API_turnLeft();
 			distLastNode += dist + 1;
@@ -62,7 +61,7 @@ int pathCheck(int position[2], short int *dire)
 		}
 		else
 		{
-			simLog("WALL ERROR");
+			simLog("ERROR: expected node class to be 0, not -1 DEADEND");
 		}
 		API_moveForward();
 		dist++;
