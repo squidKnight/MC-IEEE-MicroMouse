@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 05/8/20
+Last modified: 05/13/20
 Purpose: recursively check the backpath of nodeCurrent to update shortest route to start.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -33,10 +33,10 @@ NOTES:
 		to set rank to the new position in the array the current node is listed at.
 	Assumes nodeID and nodePrevious have direct connections to eachother.
 	It's recursively calling an array simulating a quadrupley-linked-list; expect things to be misconfigured...
+	Loopbacks not directly checked for, relies upon the path already being updated and shorter.
 CAUTION:
 	Manipulates the nodeList array directly.
 	Recursive function: will require sufficient memory to process all recursive steps.
-	Walls, deadends and loopbacks are not currently checked for; not sure if they'll cause problems without checks to ignore them.
 */
 int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode)
 {
@@ -151,13 +151,6 @@ int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int d
 			return rankID;
 		}
 
-		/*
-		//sort nodeList //stack is simulating a quadruply-linked-list, it doesn't need to be sorted.
-		int rank = stackCheck(nodeList, nodeID);
-		int stack = stackInsert(nodeList, nodeList[rank]);
-		stackRemove(nodeList, rank);
-		return stack;
-		*/
 		fprintf(stderr, "\tNodeID %d has been recalculated.\n", nodeID);
 		fflush(stderr);
 		return rankID;
