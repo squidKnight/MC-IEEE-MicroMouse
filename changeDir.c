@@ -6,11 +6,12 @@ Status: FINISHED, TESTED
 */
 
 #include "API.h"
-#include <stdbool.h>	
+#include <stdbool.h>
 #include <stdio.h>
 
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
+short int updateDir(short int direction, short int relativeChange);
 
 /*short int changeDir(short int direction, short int newDirection)
 INPUTS: short int direction, short int newDirection
