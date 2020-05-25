@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/13/20
+Last modified: 05/24/20
 Purpose: check if the current node is already on the stack
 Status: FINISHED, TESTED
 */
@@ -40,7 +40,7 @@ int stackCheck(int nodeList[NODES][DATA], int nodeCurrent) //checks new node for
 		
 		if (nodeList[i][0] == nodeCurrent) //if current node has same ID
 		{
-			simLog("Node already exists.");
+			//simLog("Node already exists.");
 			rankFound = i;
 		}
 	}
