@@ -1,8 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/13/20
+Last modified: 05/24/20
 Purpose: scan the maze.
-Status: UNFINISHED, TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -17,13 +17,27 @@ short int updateDir(short int direction, short int relativeChange);
 int getID(int position[2]);
 int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
+short int pathChoose(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
 int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode);
 int pathCheck(int position[2], short int *dire);
+short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]);
 
 static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall);
 static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious);
 
+/*void scan(int nodeList[NODES][DATA])
+INPUTS: int nodeList[NODES][DATA]
+	nodeList: the nodeList array.
+RETURNS: int nodeList[NODES][DATA]
+	nodeList: updates the nodeList array directly.
+NOTES:
+	implemented to be called from main.c
+	Designed to intentionally crash and return to a higher function when no unexplored paths exist.
+	Master function for exploring the maze.
+CAUTION:
+	Manipulates the nodeList array directly.
+	Internal [positioning variables are not stored universaly and will not be passed to the function that called it, they will have to be reconstructed from the nodeList array's data.
+*/
 void scan(int nodeList[NODES][DATA])
 {
 	int position[2] = { 0, 0 };
@@ -221,7 +235,64 @@ void scan(int nodeList[NODES][DATA])
 				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
 				fflush(stderr);
 
-				direction = pathChooseAlt(nodeList, rank, direction);
+				short int front, right, back, left, expF, expR, expB, expL;
+				switch (direction) //set directions for current orientation
+				{
+				case 0:
+					front = NODEID_T;
+					right = NODEID_R;
+					back = NODEID_B;
+					left = NODEID_L;
+					expF = EXP_T;
+					expR = EXP_R;
+					expB = EXP_B;
+					expL = EXP_L;
+					break;
+				case 1:
+					front = NODEID_R;
+					right = NODEID_B;
+					back = NODEID_L;
+					left = NODEID_T;
+					expF = EXP_R;
+					expR = EXP_B;
+					expB = EXP_L;
+					expL = EXP_T;
+					break;
+				case 2:
+					front = NODEID_B;
+					right = NODEID_L;
+					back = NODEID_T;
+					left = NODEID_R;
+					expF = EXP_B;
+					expR = EXP_L;
+					expB = EXP_T;
+					expL = EXP_R;
+					break;
+				case 3:
+					front = NODEID_L;
+					right = NODEID_T;
+					back = NODEID_R;
+					left = NODEID_B;
+					expF = EXP_L;
+					expR = EXP_T;
+					expB = EXP_R;
+					expL = EXP_B;
+					break;
+				}
+				fprintf(stderr, "nodeCurrent: %d, nodeID: %d,\t\tfront: %d, right: %d, back: %d, left: %d, expF: %d, expR: %d, expB: %d, expL: %d\n", rank, nodeList[rank][NODEID], nodeList[rank][front], nodeList[rank][right], nodeList[rank][back], nodeList[rank][left], nodeList[rank][expF], nodeList[rank][expR], nodeList[rank][expB], nodeList[rank][expL]);
+				fflush(stderr);
+
+				//Choose next available route, not previously traveled if possible
+				if ((nodeList[rank][front] != 0) && (nodeList[rank][left] != 0) && (nodeList[rank][right] != 0)) //if no unexplored directions
+				{
+					simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
+					direction = pathChooseAlt(nodeList, rank, direction, position);
+					rank = stackCheck(nodeList, getID(position));
+					distLastNode = nodeList[rank][DIST];
+					nodeID = getID(position);
+				}
+				direction = pathChoose(nodeList, rank, direction); //pick an unexplored direction
+
 				stack = rank;
 			}
 			
