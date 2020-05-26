@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/13/20
+Last modified: 05/24/20
 Purpose: recursively check the backpath of nodeCurrent to update shortest route to start.
 Status: FINISHED, TESTED
 */
