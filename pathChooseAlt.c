@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/24/20
+Last modified: 05/25/20
 Purpose: choose next not fully explored node and travel to it.
 Status: FINISHED, TESTED
 */
@@ -46,13 +46,24 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 	short int dire = direction;
 	
 	simLog("Searching for unexplored path along backpath...");
-	int nodeID = getID(position);
+	int nodeID = nodeList[nodeCurrent][NODEID];
 	//verify that there's an explorable direction along backpath
 	short int nodeCheck = nodeCurrent;
 	bool found = false;
+	fprintf(stderr, "NodeID: %d", nodeID);
+	fflush(stderr);
+	for (int i = 0; i < NODES; i++)
+	{
+		fprintf(stderr, "NodeID: %d, backpath: %d\n", nodeList[i][NODEID], nodeList[i][NODEID_P]);
+		fflush(stderr);
+		if (nodeList[i][NODEID] == INFINITY)
+			break;
+	}
 	while (nodeID != 1)
 	{
-		if ((nodeList[nodeCheck][EXP_T] == 0 && nodeList[nodeCheck][NODEID_T] == 0) || (nodeList[nodeCheck][EXP_R] == 0 && nodeList[nodeCheck][NODEID_R] == 0) || (nodeList[nodeCheck][EXP_B] == 0 && nodeList[nodeCheck][NODEID_B] == 0) || (nodeList[nodeCheck][EXP_L] == 0 && nodeList[nodeCheck][NODEID_L] == 0))
+		fprintf(stderr, "NodeID: %d, backpath: %d(", nodeList[nodeCheck][NODEID], nodeList[nodeCheck][NODEID_P]);
+		fflush(stderr);
+		if ((nodeList[nodeCheck][NODEID_T] == 0) || (nodeList[nodeCheck][NODEID_R] == 0) || (nodeList[nodeCheck][NODEID_B] == 0) || (nodeList[nodeCheck][NODEID_L] == 0))
 		{
 			found = true;
 			break;
@@ -74,6 +85,8 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		{
 			nodeID = nodeList[nodeCheck][NODEID_L];
 		}
+		fprintf(stderr, "%d)\n", nodeID);
+		fflush(stderr);
 
 		nodeCheck = stackCheck(nodeList, nodeID);
 	
@@ -82,7 +95,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 	nodeID = getID(position);
 	if (found)
 	{
-		while ((nodeID != 1) && !((nodeList[nodeCurrent][EXP_T] == 0 && nodeList[nodeCurrent][NODEID_T] == 0) || (nodeList[nodeCurrent][EXP_R] == 0 && nodeList[nodeCurrent][NODEID_R] == 0) || (nodeList[nodeCurrent][EXP_B] == 0 && nodeList[nodeCurrent][NODEID_B] == 0) || (nodeList[nodeCurrent][EXP_L] == 0 && nodeList[nodeCurrent][NODEID_L] == 0)))
+		while ((nodeID != 1) && !((nodeList[nodeCurrent][NODEID_T] == 0) || (nodeList[nodeCurrent][NODEID_R] == 0) || (nodeList[nodeCurrent][NODEID_B] == 0) || (nodeList[nodeCurrent][NODEID_L] == 0)))
 		{
 			short int front, right, back, left;
 			switch (dire) //set directions for current orientation
@@ -140,55 +153,6 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 
 			if (!API_wallFront())
 			{
-				//check if node is simulating a dead-end
-				switch (direction) //if node fully explored
-				{
-				case 0:
-				{
-					if ((nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_B] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-					{
-						nodeList[nodeCurrent][EXP_T] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting up.\n", nodeList[nodeCurrent][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 1:
-				{
-					if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_B] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-					{
-						nodeList[nodeCurrent][EXP_R] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[nodeCurrent][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 2:
-				{
-					if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-					{
-						nodeList[nodeCurrent][EXP_B] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting down.\n", nodeList[nodeCurrent][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 3:
-				{
-					if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_B] == 1))
-					{
-						nodeList[nodeCurrent][EXP_L] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[nodeCurrent][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				}
-
 				API_moveForward();
 				updatePos(position, dire, 1);
 				pathCheck(position, &dire);
@@ -209,7 +173,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 		int nodeNextID = nodeID;
 		for (int i = 0; i < NODES; i++)
 		{
-			if ((nodeList[i][EXP_T] == 0 && nodeList[i][NODEID_T] == 0) || (nodeList[i][EXP_R] == 0 && nodeList[i][NODEID_R] == 0) || (nodeList[i][EXP_B] == 0 && nodeList[i][NODEID_B] == 0) || (nodeList[i][EXP_L] == 0 && nodeList[i][NODEID_L] == 0))
+			if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
 			{
 				nodeNextID = nodeList[i][NODEID];
 				fprintf(stderr, "NodeID %d has an unexplored path, calculating route...\n", nodeNextID);
@@ -311,55 +275,6 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 
 				if (!API_wallFront())
 				{
-					//check if node is simulating a dead-end
-					switch (direction) //if node fully explored
-					{
-					case 0:
-					{
-						if ((nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_B] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-						{
-							nodeList[nodeCurrent][EXP_T] = 1;
-							API_setColor(position[0], position[1], 'Y');
-							fprintf(stderr, "node %d fully explored, exiting up.\n", nodeList[nodeCurrent][NODEID]);
-							fflush(stderr);
-						}
-						break;
-					}
-					case 1:
-					{
-						if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_B] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-						{
-							nodeList[nodeCurrent][EXP_R] = 1;
-							API_setColor(position[0], position[1], 'Y');
-							fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[nodeCurrent][NODEID]);
-							fflush(stderr);
-						}
-						break;
-					}
-					case 2:
-					{
-						if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_L] == 1))
-						{
-							nodeList[nodeCurrent][EXP_B] = 1;
-							API_setColor(position[0], position[1], 'Y');
-							fprintf(stderr, "node %d fully explored, exiting down.\n", nodeList[nodeCurrent][NODEID]);
-							fflush(stderr);
-						}
-						break;
-					}
-					case 3:
-					{
-						if ((nodeList[nodeCurrent][EXP_T] == 1) && (nodeList[nodeCurrent][EXP_R] == 1) && (nodeList[nodeCurrent][EXP_B] == 1))
-						{
-							nodeList[nodeCurrent][EXP_L] = 1;
-							API_setColor(position[0], position[1], 'Y');
-							fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[nodeCurrent][NODEID]);
-							fflush(stderr);
-						}
-						break;
-					}
-					}
-
 					API_moveForward();
 					updatePos(position, dire, 1);
 					pathCheck(position, &dire);
@@ -447,56 +362,6 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 
 			if (!API_wallFront())
 			{
-				//check if node is simulating a dead-end
-				short int stack = stackCheck(nodeList, nodeID);
-				switch (direction) //if node fully explored
-				{
-				case 0:
-				{
-					if ((nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_B] == 1) && (nodeList[stack][EXP_L] == 1))
-					{
-						nodeList[stack][EXP_T] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting up.\n", nodeList[stack][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 1:
-				{
-					if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_B] == 1) && (nodeList[stack][EXP_L] == 1))
-					{
-						nodeList[stack][EXP_R] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[stack][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 2:
-				{
-					if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_L] == 1))
-					{
-						nodeList[stack][EXP_B] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting down.\n", nodeList[stack][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				case 3:
-				{
-					if ((nodeList[stack][EXP_T] == 1) && (nodeList[stack][EXP_R] == 1) && (nodeList[stack][EXP_B] == 1))
-					{
-						nodeList[stack][EXP_L] = 1;
-						API_setColor(position[0], position[1], 'Y');
-						fprintf(stderr, "node %d fully explored, exiting right.\n", nodeList[stack][NODEID]);
-						fflush(stderr);
-					}
-					break;
-				}
-				}
-
 				API_moveForward();
 				updatePos(position, dire, 1);
 				pathCheck(position, &dire);
