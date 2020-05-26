@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 04/24/20
+Last modified: 05/25/20
 Purpose:initialize the nodeList and mms sim.
 Status: FINISHED, TESTED
 */
@@ -41,14 +41,10 @@ void nodeInit(int nodeList[NODES][DATA]) //initialize nodeList
 	nodeList[0][NODEID_P] = 1; //set start point to have a backpath of 1 (to self)
 	if (!API_wallLeft())
 		nodeList[0][NODEID_L] = 0; //if no wall, set next path on left to null ID
-	nodeList[0][EXP_L] = 1; //Assumes it's already explored every alternative direction
 	if (!API_wallFront())
 		nodeList[0][NODEID_T] = 0; //if no wall, set next path in front to null ID
-	nodeList[0][EXP_T] = 1; //Assumes it's already explored every alternative direction
 	if (!API_wallRight())
 		nodeList[0][NODEID_R] = 0; //if no wall, set next path on right to null ID
-	nodeList[0][EXP_R] = 1; //Assumes it's already explored every alternative direction
-	nodeList[0][EXP_B] = 1; //Assumes it's already explored every alternative direction
 
 	API_setColor(0, 0, 'Y'); //visual mark
 	API_setText(0, 0, "start");
