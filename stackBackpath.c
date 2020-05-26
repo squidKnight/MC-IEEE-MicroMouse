@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/24/20
+Last modified: 05/25/20
 Purpose: recursively check the backpath of nodeCurrent to update shortest route to start.
 Status: FINISHED, TESTED
 */
@@ -151,7 +151,7 @@ int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int d
 			return rankID;
 		}
 
-		fprintf(stderr, "\tNodeID %d has been recalculated.\n", nodeID);
+		fprintf(stderr, "\tNodeID %d has been recalculated: %d\n", nodeID, nodeList[rankID][NODEID_P]);
 		fflush(stderr);
 		return rankID;
 	}
