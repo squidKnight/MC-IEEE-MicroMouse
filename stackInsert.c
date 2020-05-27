@@ -1,6 +1,6 @@
 /*
 Written by SquidKnight, Mathazzar
-Last modified: 05/13/20
+Last modified: 05/26/20
 Purpose: add the current node to the stack
 Status: FINISHED, TESTED
 */
@@ -51,12 +51,16 @@ int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
 			simLog("ERROR: Node already exists.");
 			return stack;
 		}
-		else if (nodeCurrent[DIST] < nodeList[i][DIST]) //if current node is closer to start than node in ranking
+		else if (nodeList[i][NODEID] == INFINITY)//(nodeCurrent[DIST] < nodeList[i][DIST]) //if current node is closer to start than node in ranking
 		{
 			if (!rankFound)
 			{
 				rankFound = true;
 				stack = i;
+			}
+			else
+			{
+				simLog("ERROR: should've already finished with stack insertion.");
 			}
 
 			//store information of node in ranking below current node to temporary array
@@ -68,7 +72,7 @@ int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
 			//add current node to the stack
 			for (int j = 0; j < DATA; j++)
 			{
-				nodeList[i][j]=nodeCurrent[j];
+				nodeList[i][j] = nodeCurrent[j];
 			}
 
 			//treat the node in temporary storage as the new current node
@@ -76,7 +80,7 @@ int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
 			{
 				nodeCurrent[j] = tempArr[j];
 			}
-			fprintf(stderr, "\t\t\tRank of node %d: %d \n", nodeList[i][0], i);
+			fprintf(stderr, "\t\t\tRank of node %d: %d \n", nodeList[i][NODEID], i);
 			fflush(stderr);
 		}
 	}
