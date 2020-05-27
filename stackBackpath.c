@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/25/20
+Last modified: 05/26/20
 Purpose: recursively check the backpath of nodeCurrent to update shortest route to start.
 Status: FINISHED, TESTED
 */
@@ -13,8 +13,6 @@ Status: FINISHED, TESTED
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-//int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
-//int stackRemove(int nodeList[NODES][DATA], int rank);
 
 static int abs(int x);
 
@@ -40,10 +38,12 @@ CAUTION:
 */
 int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode)
 {
-	fprintf(stderr, "\tChecking NodeID %d...\n", nodeID);
+	fprintf(stderr, "\tChecking NodeID %d: ", nodeID);
 	fflush(stderr);
 	int rankID = stackCheck(nodeList, nodeID);
 	int rankPr = stackCheck(nodeList, nodePrevious);
+	fprintf(stderr, "rankID %d, rankPr %d, currentdist: %d.\n", rankID, rankPr, nodeList[rankID][DIST]);
+	fflush(stderr);
 	//base case
 	if ((nodeList[rankPr][DIST] + distLastNode) >= nodeList[rankID][DIST])
 	{
@@ -151,7 +151,7 @@ int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int d
 			return rankID;
 		}
 
-		fprintf(stderr, "\tNodeID %d has been recalculated: %d\n", nodeID, nodeList[rankID][NODEID_P]);
+		fprintf(stderr, "\tNodeID %d has been recalculated: %d(%d)\n", nodeID, nodeList[rankID][NODEID_P],nodeList[rankID][DIST]);
 		fflush(stderr);
 		return rankID;
 	}
