@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/25/20
+Last modified: 05/26/20
 Purpose: scan the maze.
 Status: FINISHED, TESTED
 */
@@ -234,7 +234,25 @@ void scan(int nodeList[NODES][DATA])
 					if ((nodeList[stack][DIST] + distLastNode) < nodeList[rank][DIST]) //if new path is a shorter route for nodeCurrent
 					{
 						simLog("Shorter path for current node discovered; recalculating current node's backpath and its childeren's backpaths...");
+
+						for (int i = 0; i < NODES; i++)
+						{
+							fprintf(stderr, "%d; nodeID: %d, backpath: %d\n", i, nodeList[i][NODEID], nodeList[i][NODEID_P]);
+							fflush(stderr);
+							if (nodeList[i][NODEID] == INFINITY)
+								break;
+						}
+
 						int rankTest = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
+
+						for (int i = 0; i < NODES; i++)
+						{
+							fprintf(stderr, "%d; nodeID: %d, backpath: %d\n", i, nodeList[i][NODEID], nodeList[i][NODEID_P]);
+							fflush(stderr);
+							if (nodeList[i][NODEID] == INFINITY)
+								break;
+						}
+
 						if (rankTest != rank)
 						{
 							fprintf(stderr, "ERROR: recursive function thinks nodeCurrent is %d, when it should be %d.", rankTest, rank);
@@ -259,9 +277,9 @@ void scan(int nodeList[NODES][DATA])
 
 				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
 				fflush(stderr);
-
+				//set directions for current orientation
 				short int front, right, back, left;
-				switch (direction) //set directions for current orientation
+				switch (direction)
 				{
 				case 0:
 					front = NODEID_T;
@@ -295,6 +313,27 @@ void scan(int nodeList[NODES][DATA])
 				if ((nodeList[rank][front] != 0) && (nodeList[rank][left] != 0) && (nodeList[rank][right] != 0)) //if no unexplored directions
 				{
 					simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
+					
+					short int san = 0;
+					for (int i = 0; i < NODES; i++)
+					{
+						if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
+						{
+							break;
+						}
+						san = i;
+					}
+					if (san == NODES - 1)
+					{
+						simLog("FATAL ERROR: nodeList array is either full or all nodes have been fully explored.");
+						return;
+					}
+					else
+					{
+						fprintf(stderr, "%d\n", san);
+						fflush(stderr);
+					}
+					
 					direction = pathChooseAlt(nodeList, rank, direction, position);
 					nodeID = getID(position);
 					rank = stackCheck(nodeList, nodeID);
