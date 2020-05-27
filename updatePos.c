@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 04/22/20
+Last modified: 05/26/20
 Purpose: update the position of the micromouse.
 Status: FINISHED, PARTIALLY TESTED
 */
@@ -23,8 +23,8 @@ CAUTION:
 */
 void updatePos(int position[2], short int direction, short int dist)
 {
-	fprintf(stderr, "moving from (%d, %d, %d) %d units to ", position[0], position[1], direction, dist);
-	fflush(stderr);
+	//fprintf(stderr, "moving from (%d, %d, %d) %d units to ", position[0], position[1], direction, dist);
+	//fflush(stderr);
 	switch (direction)
 	{
 	case 0: //if facing up
@@ -43,8 +43,8 @@ void updatePos(int position[2], short int direction, short int dist)
 		simLog("DIRECTION ERROR");
 		break;
 	}
-	fprintf(stderr, "(%d, %d, %d) \n", position[0], position[1], direction);
-	fflush(stderr);
+	//fprintf(stderr, "(%d, %d, %d) \n", position[0], position[1], direction);
+	//fflush(stderr);
 	if (position[0] < 0 || position[0] >= 16)
 	{
 		simLog("X position ERROR");
