@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 05/25/20
+Last modified: 05/29/20
 Purpose: choose next not fully explored node and travel to it.
-Status: FINISHED, TESTED
+Status: NOT FINISHED, TESTED
 */
 
 #include "API.h"
@@ -16,6 +16,8 @@ short int updateDir(short int direction, short int relativeChange);
 int getID(int position[2]);
 int pathCheck(int position[2], short int *dire);
 void updatePos(int position[2], short int direction, short int dist);
+short int directionBack(int nodeCurrent[DATA]);
+short int changeDir(short int direction, short int newDirection);
 
 /*short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent,short int direction, int position[2])
 INPUTS: int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]
@@ -37,6 +39,7 @@ NOTES:
 		a shorter path it can take to get there that it won't look for. An independent algorithm would be needed
 		to check for that, which isn't currently implemented due to concerns with the Arduino's capabilities.
 	Designed to intentionally crash and return to a higher function when no unexplored paths exist.
+	Currently assumes that any backpath possible will always be less than NODES/8(~32) long.
 CAUTION:
 	Manipulates the nodeList array passed to it directly.
 	Manipulates the position array passed to it directly via updatePos().
@@ -44,7 +47,7 @@ CAUTION:
 short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2])
 {
 	short int dire = direction;
-	
+
 	simLog("Searching for unexplored path along backpath...");
 	int nodeID = nodeList[nodeCurrent][NODEID];
 	//verify that there's an explorable direction along backpath
@@ -69,27 +72,29 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 			break;
 		}
 
-		if (nodeList[nodeCheck][NODEID_P] == nodeList[nodeCheck][NODEID_T])
+		switch (directionBack(nodeList[nodeCheck]))
 		{
+		case 0:
 			nodeID = nodeList[nodeCheck][NODEID_T];
-		}
-		else if (nodeList[nodeCheck][NODEID_P] == nodeList[nodeCheck][NODEID_R])
-		{
+			break;
+		case 1:
 			nodeID = nodeList[nodeCheck][NODEID_R];
-		}
-		else if (nodeList[nodeCheck][NODEID_P] == nodeList[nodeCheck][NODEID_B])
-		{
+			break;
+		case 2:
 			nodeID = nodeList[nodeCheck][NODEID_B];
-		}
-		else if (nodeList[nodeCheck][NODEID_P] == nodeList[nodeCheck][NODEID_L])
-		{
+			break;
+		case 3:
 			nodeID = nodeList[nodeCheck][NODEID_L];
+			break;
+		case -1:
+			simLog("CRITICAL ERROR: backpath not among available routes.");
+			return dire;
 		}
 		fprintf(stderr, "%d)\n", nodeID);
 		fflush(stderr);
 
 		nodeCheck = stackCheck(nodeList, nodeID);
-	
+
 	}
 
 	nodeID = getID(position);
@@ -97,58 +102,11 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 	{
 		while ((nodeID != 1) && !((nodeList[nodeCurrent][NODEID_T] == 0) || (nodeList[nodeCurrent][NODEID_R] == 0) || (nodeList[nodeCurrent][NODEID_B] == 0) || (nodeList[nodeCurrent][NODEID_L] == 0)))
 		{
-			short int front, right, back, left;
-			switch (dire) //set directions for current orientation
+			dire = changeDir(dire, directionBack(nodeList[nodeCurrent]));
+			if (dire == -1)
 			{
-			case 0:
-				front = NODEID_T;
-				right = NODEID_R;
-				back = NODEID_B;
-				left = NODEID_L;
-				break;
-			case 1:
-				front = NODEID_R;
-				right = NODEID_B;
-				back = NODEID_L;
-				left = NODEID_T;
-				break;
-			case 2:
-				front = NODEID_B;
-				right = NODEID_L;
-				back = NODEID_T;
-				left = NODEID_R;
-				break;
-			case 3:
-				front = NODEID_L;
-				right = NODEID_T;
-				back = NODEID_R;
-				left = NODEID_B;
-				break;
-			}
-			if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][front])
-			{
-				dire = updateDir(dire, 0);
-			}
-			else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][right])
-			{
-				API_turnRight();
-				dire = updateDir(dire, 1);
-			}
-			else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][back])
-			{
-				API_turnRight();
-				API_turnRight();
-				dire = updateDir(dire, 2);
-			}
-			else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][left])
-			{
-				API_turnLeft();
-				dire = updateDir(dire, 3);
-			}
-			else
-			{
-				simLog("CRITICAL ERROR: expected backpath not among available routes.");
-				break;
+				simLog("CRITICAL ERROR: backpath not among available routes.");
+				return dire;
 			}
 
 			if (!API_wallFront())
@@ -198,7 +156,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 			fflush(stderr);
 		}
 		fflush(stderr);
-		
+
 		//traverse until a shared backpath is discovered
 		short int x = 0;
 		found = false;
@@ -219,58 +177,11 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 			}
 			else
 			{
-				short int front, right, back, left;
-				switch (dire) //set directions for current orientation
+				dire = changeDir(dire, directionBack(nodeList[nodeCurrent]));
+				if (dire == -1)
 				{
-				case 0:
-					front = NODEID_T;
-					right = NODEID_R;
-					back = NODEID_B;
-					left = NODEID_L;
-					break;
-				case 1:
-					front = NODEID_R;
-					right = NODEID_B;
-					back = NODEID_L;
-					left = NODEID_T;
-					break;
-				case 2:
-					front = NODEID_B;
-					right = NODEID_L;
-					back = NODEID_T;
-					left = NODEID_R;
-					break;
-				case 3:
-					front = NODEID_L;
-					right = NODEID_T;
-					back = NODEID_R;
-					left = NODEID_B;
-					break;
-				}
-				if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][front])
-				{
-					dire = updateDir(dire, 0);
-				}
-				else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][right])
-				{
-					API_turnRight();
-					dire = updateDir(dire, 1);
-				}
-				else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][back])
-				{
-					API_turnRight();
-					API_turnRight();
-					dire = updateDir(dire, 2);
-				}
-				else if (nodeList[nodeCurrent][NODEID_P] == nodeList[nodeCurrent][left])
-				{
-					API_turnLeft();
-					dire = updateDir(dire, 3);
-				}
-				else
-				{
-					simLog("CRITICAL ERROR: expected backpath not among available routes.");
-					break;
+					simLog("CRITICAL ERROR: backpath not among available routes.");
+					return dire;
 				}
 
 				if (!API_wallFront())
@@ -288,7 +199,7 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 					break;
 				}
 			}
-			
+
 		}
 
 		//traverse maze along chosen path to nodeNext
@@ -306,58 +217,18 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 				simLog("CRITICAL ERROR: expected route not taken.");
 				break;
 			}
-			short int front, right, back, left;
-			switch (dire) //set directions for current orientation
+
+			//copy current node and replace the copy's backpath with nodeNextPath
+			int nodeTemp[DATA];
+			for (int i = 0; i < DATA; i++)
+				nodeTemp[i] = nodeList[heap][i];
+			nodeTemp[NODEID_P] = nodeNextPath[x];
+
+			dire = changeDir(dire, directionBack(nodeTemp));
+			if (dire == -1)
 			{
-			case 0:
-				front = NODEID_T;
-				right = NODEID_R;
-				back = NODEID_B;
-				left = NODEID_L;
-				break;
-			case 1:
-				front = NODEID_R;
-				right = NODEID_B;
-				back = NODEID_L;
-				left = NODEID_T;
-				break;
-			case 2:
-				front = NODEID_B;
-				right = NODEID_L;
-				back = NODEID_T;
-				left = NODEID_R;
-				break;
-			case 3:
-				front = NODEID_L;
-				right = NODEID_T;
-				back = NODEID_R;
-				left = NODEID_B;
-				break;
-			}
-			if (nodeNextPath[x] == nodeList[heap][front])
-			{
-				dire = updateDir(dire, 0);
-			}
-			else if (nodeNextPath[x] == nodeList[heap][right])
-			{
-				API_turnRight();
-				dire = updateDir(dire, 1);
-			}
-			else if (nodeNextPath[x] == nodeList[heap][back])
-			{
-				API_turnRight();
-				API_turnRight();
-				dire = updateDir(dire, 2);
-			}
-			else if (nodeNextPath[x] == nodeList[heap][left])
-			{
-				API_turnLeft();
-				dire = updateDir(dire, 3);
-			}
-			else
-			{
-				simLog("CRITICAL ERROR: expected backpath not among available routes.");
-				break;
+				simLog("CRITICAL ERROR: backpath not among available routes.");
+				return dire;
 			}
 
 			if (!API_wallFront())
