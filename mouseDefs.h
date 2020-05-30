@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 04/24/20
+Last modified: 05/29/20
 Purpose: store universal constants for data.
 Status: FINISHED, TESTED
 */
@@ -28,7 +28,7 @@ Status: FINISHED, TESTED
 #define NODEID_R 4
 #define NODEID_B 5
 #define NODEID_L 6
-#define EXP_T 7
-#define EXP_R 8
-#define EXP_B 9
-#define EXP_L 10
+#define DIST_T 7
+#define DIST_R 8
+#define DIST_B 9
+#define DIST_L 10
