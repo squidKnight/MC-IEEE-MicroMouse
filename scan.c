@@ -1,8 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/26/20
+Last modified: 05/29/20
 Purpose: scan the maze.
-Status: FINISHED, TESTED
+Status: NOT FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -23,7 +23,7 @@ int pathCheck(int position[2], short int *dire);
 short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]);
 
 static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall);
-static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious);
+static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious, int dist);
 
 /*void scan(int nodeList[NODES][DATA])
 INPUTS: int nodeList[NODES][DATA]
@@ -85,10 +85,10 @@ void scan(int nodeList[NODES][DATA])
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
-				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious); //add backpath
+				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious, distLastNode); //add backpath
 
 				//add node to stack
-				fprintf(stderr, "%d, %d, %d, %d, direction: %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L], direction);
+				fprintf(stderr, "%d, %d, %d, %d, direction: %d\n\t%d, %d, %d, %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L], direction, nodeCurrent[DIST_T], nodeCurrent[DIST_R], nodeCurrent[DIST_B], nodeCurrent[DIST_L]);
 				fflush(stderr);
 				stack = stackInsert(nodeList, nodeCurrent);
 
@@ -114,7 +114,7 @@ void scan(int nodeList[NODES][DATA])
 			}
 			else if (nodeID != nodeList[0][NODEID]) //if node already on stack
 			{
-				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious, directionPrevious); //add the new path
+				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious, directionPrevious, distLastNode); //add the new path
 
 				if (nodePrevious == nodeID) //if a direct loopback occured
 				{
@@ -229,7 +229,7 @@ void scan(int nodeList[NODES][DATA])
 				}
 				else //reasses if current backpath is still the shortest available route back to start
 				{
-					fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+					fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 					fflush(stderr);
 					if ((nodeList[stack][DIST] + distLastNode) < nodeList[rank][DIST]) //if new path is a shorter route for nodeCurrent
 					{
@@ -262,7 +262,7 @@ void scan(int nodeList[NODES][DATA])
 					}
 					else if ((nodeList[rank][DIST] + distLastNode) < nodeList[stack][DIST]) //if new path is a shorter route for nodePrevious
 					{
-						fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[stack][NODEID], nodeList[stack][DIST], nodeList[stack][NODEID_P], nodeList[stack][NODEID_T], nodeList[stack][NODEID_R], nodeList[stack][NODEID_B], nodeList[stack][NODEID_L], nodeList[stack][EXP_T], nodeList[stack][EXP_R], nodeList[stack][EXP_B], nodeList[stack][EXP_L]);
+						fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[stack][NODEID], nodeList[stack][DIST], nodeList[stack][NODEID_P], nodeList[stack][NODEID_T], nodeList[stack][NODEID_R], nodeList[stack][NODEID_B], nodeList[stack][NODEID_L]);
 						fflush(stderr);
 						simLog("Shorter path for previous node discovered; recalculating previous node's backpath and its childeren's backpaths...");
 						int rankTest = stackBackpath(nodeList, nodePrevious, nodeID, distLastNode);
@@ -275,7 +275,7 @@ void scan(int nodeList[NODES][DATA])
 					}
 				}
 
-				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d, EXP_T: %d, EXP_R: %d, EXP_B: %d, EXP_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L], nodeList[rank][EXP_T], nodeList[rank][EXP_R], nodeList[rank][EXP_B], nodeList[rank][EXP_L]);
+				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 				fflush(stderr);
 				//set directions for current orientation
 				short int front, right, back, left;
@@ -403,11 +403,6 @@ void scan(int nodeList[NODES][DATA])
 			break;
 		}
 	}
-	for (int i = 0; i < NODES; i++)
-	{
-		fprintf(stderr, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", i, nodeList[i][NODEID], nodeList[i][DIST], nodeList[i][NODEID_P], nodeList[i][NODEID_T], nodeList[i][NODEID_R], nodeList[i][NODEID_B], nodeList[i][NODEID_L], nodeList[i][EXP_T], nodeList[i][EXP_R], nodeList[i][EXP_B], nodeList[i][EXP_L]);
-		fflush(stderr);
-	}
 }
 
 static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
@@ -425,6 +420,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 			//simLog("wall above");
 			nodeCurrent[NODEID_T] = INFINITY;
 		}
+		nodeCurrent[DIST_T] = INFINITY;
 		break;
 	}
 	case 1:
@@ -438,6 +434,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 			//simLog("wall right");
 			nodeCurrent[NODEID_R] = INFINITY;
 		}
+		nodeCurrent[DIST_R] = INFINITY;
 		break;
 	}
 	case 2:
@@ -451,6 +448,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 			//simLog("wall below");
 			nodeCurrent[NODEID_B] = INFINITY;
 		}
+		nodeCurrent[DIST_B] = INFINITY;
 		break;
 	}
 	case 3:
@@ -464,15 +462,16 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 			//simLog("wall left");
 			nodeCurrent[NODEID_L] = INFINITY;
 		}
+		nodeCurrent[DIST_L] = INFINITY;
 		break;
 	}
 	}
 }
 
-//nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction
-static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious)
+//nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction, dist: distance between nodes
+static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious, int dist)
 {
-	fprintf(stderr, "adding nodePrevious (%d) as path connected to nodeCurrent (%d).\n", nodePrevious, nodeCurrent[NODEID]);
+	fprintf(stderr, "adding nodePrevious (%d) as path connected to nodeCurrent (%d) %d apart.\n", nodePrevious, nodeCurrent[NODEID], dist);
 	fflush(stderr);
 	if (nodeStack[NODEID] != nodePrevious) //verify nodePrevious is the same node as nodeStack passed to function. If nodePrevious was a deadend, it should result in this, preventing incorrect edits.
 	{
@@ -483,39 +482,39 @@ static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStac
 	{
 	case 0:
 		nodeStack[NODEID_T] = nodeCurrent[NODEID];
+		nodeStack[DIST_T] = dist;
 		break;
 	case 1:
 		nodeStack[NODEID_R] = nodeCurrent[NODEID];
+		nodeStack[DIST_R] = dist;
 		break;
 	case 2:
 		nodeStack[NODEID_B] = nodeCurrent[NODEID];
+		nodeStack[DIST_B] = dist;
 		break;
 	case 3:
 		nodeStack[NODEID_L] = nodeCurrent[NODEID];
+		nodeStack[DIST_L] = dist;
 		break;
 	}
 	switch (direction) //add new path to nodeCurrent
 	{
 	case 0: //facing up; it's down
-	{
 		nodeCurrent[NODEID_B] = nodePrevious;
+		nodeCurrent[DIST_B] = dist;
 		break;
-	}
 	case 1: //facing right; it's left
-	{
 		nodeCurrent[NODEID_L] = nodePrevious;
+		nodeCurrent[DIST_L] = dist;
 		break;
-	}
 	case 2: //facing down; it's up
-	{
 		nodeCurrent[NODEID_T] = nodePrevious;
+		nodeCurrent[DIST_T] = dist;
 		break;
-	}
 	case 3: //facing left; it's right
-	{
 		nodeCurrent[NODEID_R] = nodePrevious;
+		nodeCurrent[DIST_R] = dist;
 		break;
-	}
 	}
 	return true;
 }
