@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 06/04/20
+Last modified: 06/05/20
 Purpose: identify the direction of the current node's backpath to prevent longer path to same node being taken.
-Status: NOT FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdio.h>
@@ -10,7 +10,7 @@ Status: NOT FINISHED, NOT TESTED
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
-/*short int directionNext(int nodeCurrent[DATA], int nodeNext)
+/*short int directionNext(short int nodeCurrent[DATA], short int nodeNext)
 INPUTS: int nodeCurrent[DATA]
 	nodeCurrent: the node whose backpath is to be determined.
 	nodeNext: the nodeID of the next node to take.
@@ -25,10 +25,10 @@ NOTES:
 CAUTION:
 	dire is initialized to -1, which is an invalid direction. If NODEID_P isn't equal to any of the directional NODEIDs or the correct path is impossibly longer than INFINITY, it will return the -1 and break later functions
 */
-short int directionNext(int nodeCurrent[DATA], int nodeNext)
+short int directionNext(short int nodeCurrent[DATA], short int nodeNext)
 {
 	short int dire = -1;
-	int shortestPath = INFINITY;
+	short int shortestPath = INFINITY;
 
 	if (nodeNext == nodeCurrent[NODEID_T])
 		if (nodeCurrent[DIST_T] < shortestPath)
