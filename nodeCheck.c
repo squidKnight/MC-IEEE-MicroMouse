@@ -1,8 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 04/7/20
+Last modified: 06/05/20
 Purpose: check to see if the current location is a node
-Status: finished, tested
+Status: FINISHED, TESTED
 
 NOTE: ONLY COMPATABLE IN SIMULATOR!! Need to translate and incorperate finished movement/sensor functions once algorithm in stable
 NOTE: most of the simulator-based functions start with "API_" so any that have this prefix need to be replaced for the physical bot
@@ -17,10 +17,10 @@ INPUTS:
 RETURNS: int status
 	status: 0=clear path, 1=node, -1=deadend
 */
-int nodeCheck()
+short int nodeCheck()
 {
 	//count number of avalible paths
-	int status, paths = 3;
+	short int status, paths = 3;
 	if (API_wallFront()) //NOTE: the simulator cannot detect walls that are not next to it (this implementation will need to change for physical bot)
 		paths--;
 	if (API_wallRight())
