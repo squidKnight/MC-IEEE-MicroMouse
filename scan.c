@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 05/29/20
+Last modified: 06/04/20
 Purpose: scan the maze.
 Status: NOT FINISHED, TESTED
 */
@@ -18,7 +18,6 @@ int getID(int position[2]);
 int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
 int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int pathChoose(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
-int stackBackpath(int nodeList[NODES][DATA], int nodeID, int nodePrevious, int distLastNode);
 int pathCheck(int position[2], short int *dire);
 short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]);
 
@@ -41,10 +40,8 @@ CAUTION:
 void scan(int nodeList[NODES][DATA])
 {
 	int position[2] = { 0, 0 };
-	int distTotal = 0; //Current absolute distance from start
+	//int distTotal = 0; //Current absolute distance from start
 	short int distLastNode = 0;
-	//short int dist = 0;
-	//bool encounteredNode = false;
 	short int direction = 0; //stores current orientation, 0 is starting direction (assumed to be upwards): 0 = up, 1 = right, 2 = down, 3 = left
 	int nodePrevious = nodeList[0][0];
 	int stack = 0;
@@ -64,7 +61,7 @@ void scan(int nodeList[NODES][DATA])
 	{
 		//continue till next node
 		distLastNode += pathCheck(position, &direction);
-		distTotal += distLastNode;
+		//distTotal += distLastNode;
 		simLog("\tEncountered node:");
 		
 		if (nodeCheck() == 1) //if maze node
@@ -80,8 +77,7 @@ void scan(int nodeList[NODES][DATA])
 				//create node
 				int nodeCurrent[DATA]; //stores all information on current node
 				nodeCurrent[NODEID] = nodeID; //node ID
-				nodeCurrent[DIST] = distTotal; //distance traveled
-				nodeCurrent[NODEID_P] = nodePrevious; //current backpath
+				//nodeCurrent[DIST] = distTotal; //distance traveled
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
@@ -227,55 +223,8 @@ void scan(int nodeList[NODES][DATA])
 					fprintf(stderr, "nodeID: %d, T: %d, R: %d, B: %d, L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 					fflush(stderr);
 				}
-				else //reasses if current backpath is still the shortest available route back to start
-				{
-					fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
-					fflush(stderr);
-					if ((nodeList[stack][DIST] + distLastNode) < nodeList[rank][DIST]) //if new path is a shorter route for nodeCurrent
-					{
-						simLog("Shorter path for current node discovered; recalculating current node's backpath and its childeren's backpaths...");
 
-						for (int i = 0; i < NODES; i++)
-						{
-							fprintf(stderr, "%d; nodeID: %d, backpath: %d\n", i, nodeList[i][NODEID], nodeList[i][NODEID_P]);
-							fflush(stderr);
-							if (nodeList[i][NODEID] == INFINITY)
-								break;
-						}
-
-						int rankTest = stackBackpath(nodeList, nodeID, nodePrevious, distLastNode);
-
-						for (int i = 0; i < NODES; i++)
-						{
-							fprintf(stderr, "%d; nodeID: %d, backpath: %d\n", i, nodeList[i][NODEID], nodeList[i][NODEID_P]);
-							fflush(stderr);
-							if (nodeList[i][NODEID] == INFINITY)
-								break;
-						}
-
-						if (rankTest != rank)
-						{
-							fprintf(stderr, "ERROR: recursive function thinks nodeCurrent is %d, when it should be %d.", rankTest, rank);
-							fflush(stderr);
-						}
-						simLog("Resuming path selection...");
-					}
-					else if ((nodeList[rank][DIST] + distLastNode) < nodeList[stack][DIST]) //if new path is a shorter route for nodePrevious
-					{
-						fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[stack][NODEID], nodeList[stack][DIST], nodeList[stack][NODEID_P], nodeList[stack][NODEID_T], nodeList[stack][NODEID_R], nodeList[stack][NODEID_B], nodeList[stack][NODEID_L]);
-						fflush(stderr);
-						simLog("Shorter path for previous node discovered; recalculating previous node's backpath and its childeren's backpaths...");
-						int rankTest = stackBackpath(nodeList, nodePrevious, nodeID, distLastNode);
-						if (rankTest != stack)
-						{
-							fprintf(stderr, "ERROR: recursive function thinks nodePrevious is %d, when it should be %d.", rankTest, stack);
-							fflush(stderr);
-						}
-						simLog("Resuming path selection...");
-					}
-				}
-
-				fprintf(stderr, "NODEID: %d, DIST: %d, NODEID_P: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][DIST], nodeList[rank][NODEID_P], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
+				fprintf(stderr, "NODEID: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 				fflush(stderr);
 				//set directions for current orientation
 				short int front, right, back, left;
@@ -337,7 +286,7 @@ void scan(int nodeList[NODES][DATA])
 					direction = pathChooseAlt(nodeList, rank, direction, position);
 					nodeID = getID(position);
 					rank = stackCheck(nodeList, nodeID);
-					distLastNode = nodeList[rank][DIST];
+					distLastNode = 0;
 				}
 				direction = pathChoose(nodeList, rank, direction); //pick an unexplored direction
 
@@ -388,7 +337,7 @@ void scan(int nodeList[NODES][DATA])
 				nodeList[stack][NODEID_R] = INFINITY;
 				break;
 			}
-			distTotal = nodeList[stack][DIST];
+			//distTotal = nodeList[stack][DIST];
 		}
 
 		//vvvv debug code vvvv
