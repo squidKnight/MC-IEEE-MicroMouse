@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/04/20
+Last modified: 06/05/20
 Purpose:initialize the nodeList and mms sim.
 Status: FINISHED, TESTED
 */
@@ -10,10 +10,10 @@ Status: FINISHED, TESTED
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
-/*void nodeInit(int nodeList[NODES][DATA])
-INPUTS: int nodeList[NODES][DATA]
+/*void nodeInit(short int nodeList[NODES][DATA])
+INPUTS: short int nodeList[NODES][DATA]
 	nodeList: the nodeList array
-RETURNS: int nodeList[NODES][DATA]
+RETURNS: short int nodeList[NODES][DATA]
 	nodeList: the nodeList array. Directly manipulated instead of being passed back.
 NOTES:
 	Primary function to interact with nodeList array for initialization.
@@ -21,15 +21,14 @@ NOTES:
 CAUTION:
 	Manipulates the nodeList array directly and wipes all data from it.
 */
-void nodeInit(int nodeList[NODES][DATA]) //initialize nodeList
+void nodeInit(short int nodeList[NODES][DATA]) //initialize nodeList
 {
 	simLog("Initializing nodeList...");
 
 	//set all distances and backpaths to inifinity
-	int i, j;
-	for (i = 0; i<NODES; i++)
+	for (int i = 0; i<NODES; i++)
 	{
-		for (j = 0; j < DATA; j++)
+		for (int j = 0; j < DATA; j++)
 		{
 			nodeList[i][j] = INFINITY;
 		}
