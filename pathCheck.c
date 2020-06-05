@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/13/20
+Last modified: 06/05/20
 Purpose: move to next node.
 Status: FINISHED, TESTED
 */
@@ -10,10 +10,10 @@ Status: FINISHED, TESTED
 #include <stdbool.h>
 #include "mouseDefs.h"
 
-int nodeCheck();
+short int nodeCheck();
 short int updateDir(short int direction, short int relativeChange);
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-void updatePos(int position[2], short int direction, short int dist); 
+void updatePos(short int position[2], short int direction, short int dist);
 
 /*int checkPath(int position[2], short int *dire)
 INPUTS: int position[2], short int *dire
@@ -28,10 +28,10 @@ NOTES:
 CAUTION:
 	Manipulates the direction variable passed to it directly using pointers, requires the & prefix to update the direction and remember the new orientation externally.
 */
-int pathCheck(int position[2], short int *dire)
+short int pathCheck(short int position[2], short int *dire)
 {
-	int dist = 0;
-	int distLastNode = 0;
+	short int dist = 0;
+	short int distLastNode = 0;
 
 	while (nodeCheck() == 0)
 	{

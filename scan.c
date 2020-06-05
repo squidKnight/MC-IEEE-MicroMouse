@@ -1,8 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 06/04/20
+Last modified: 06/05/20
 Purpose: scan the maze.
-Status: NOT FINISHED, TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -11,24 +11,27 @@ Status: NOT FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-int nodeCheck();
-void updatePos(int position[2], short int direction, short int dist);
-short int updateDir(short int direction, short int relativeChange);
-int getID(int position[2]);
-int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA]);
-int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int pathChoose(int nodeList[NODES][DATA], int nodeCurrent, short int direction);
-int pathCheck(int position[2], short int *dire);
-short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]);
+short int nodeCheck();
+void updatePos(short int position[2],  short int direction,  short int dist);
+ short int updateDir( short int direction,  short int relativeChange);
+short int getID(short int position[2]);
+short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA]);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node short into correct rank in stack based on distance
+ short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent,  short int direction);
+short int pathCheck(short int position[2],  short int *dire);
+ short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent,  short int direction, short int position[2]);
 
-static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall);
-static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious, int dist);
+static void setNodePath( short int direction, short int nodeCurrent[DATA], bool wall);
+static bool addNodePath( short int direction, short int nodeCurrent[DATA], short int nodeStack[DATA], short int nodePrevious,  short int directionPrevious, short int dist);
 
-/*void scan(int nodeList[NODES][DATA])
-INPUTS: int nodeList[NODES][DATA]
+/*void scan(short int nodeList[NODES][DATA], short int position[2], short int direction)
+INPUTS: short int nodeList[NODES][DATA]
 	nodeList: the nodeList array.
-RETURNS: int nodeList[NODES][DATA]
+	position: the position array.
+	direction: the current orientation of the micromouse.
+RETURNS: short int nodeList[NODES][DATA]
 	nodeList: updates the nodeList array directly.
+	direction: the new direction of the micromouse.
 NOTES:
 	implemented to be called from main.c
 	Designed to intentionally crash and return to a higher function when no unexplored paths exist.
@@ -37,15 +40,15 @@ CAUTION:
 	Manipulates the nodeList array directly.
 	Internal [positioning variables are not stored universaly and will not be passed to the function that called it, they will have to be reconstructed from the nodeList array's data.
 */
-void scan(int nodeList[NODES][DATA])
+short int scan(short int nodeList[NODES][DATA], short int position[2], short int direction)
 {
-	int position[2] = { 0, 0 };
-	//int distTotal = 0; //Current absolute distance from start
-	short int distLastNode = 0;
-	short int direction = 0; //stores current orientation, 0 is starting direction (assumed to be upwards): 0 = up, 1 = right, 2 = down, 3 = left
-	int nodePrevious = nodeList[0][0];
-	int stack = 0;
-	short int directionPrevious = direction; //stores direction that the last node exited from
+	//short int position[2] = { 0, 0 };
+	//short int distTotal = 0; //Current absolute distance from start
+	 short int distLastNode = 0;
+	// short int direction = 0; //stores current orientation, 0 is starting direction (assumed to be upwards): 0 = up, 1 = right, 2 = down, 3 = left
+	short int nodePrevious = nodeList[0][0];
+	short int stack = 0;
+	 short int directionPrevious = direction; //stores direction that the last node exited from
 	if (API_wallFront())
 	{
 		if (!API_wallLeft())
@@ -68,14 +71,14 @@ void scan(int nodeList[NODES][DATA])
 		{
 			simLog("\t\tNode class: Path node\n\t\tRecording node information...");
 			API_setColor(position[0], position[1], 'B');
-			int nodeID = getID(position);
+			short int nodeID = getID(position);
 
-			int rank = stackCheck(nodeList, nodeID);
+			short int rank = stackCheck(nodeList, nodeID);
 
 			if (rank == INFINITY) //if node not on stack
 			{
 				//create node
-				int nodeCurrent[DATA]; //stores all information on current node
+				short int nodeCurrent[DATA]; //stores all information on current node
 				nodeCurrent[NODEID] = nodeID; //node ID
 				//nodeCurrent[DIST] = distTotal; //distance traveled
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
@@ -227,7 +230,7 @@ void scan(int nodeList[NODES][DATA])
 				fprintf(stderr, "NODEID: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 				fflush(stderr);
 				//set directions for current orientation
-				short int front, right, back, left;
+				 short int front, right, back, left;
 				switch (direction)
 				{
 				case 0:
@@ -263,7 +266,7 @@ void scan(int nodeList[NODES][DATA])
 				{
 					simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
 					
-					short int san = 0;
+					 short int san = 0;
 					for (int i = 0; i < NODES; i++)
 					{
 						if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
@@ -275,7 +278,7 @@ void scan(int nodeList[NODES][DATA])
 					if (san == NODES - 1)
 					{
 						simLog("FATAL ERROR: nodeList array is either full or all nodes have been fully explored.");
-						return;
+						return direction;
 					}
 					else
 					{
@@ -303,7 +306,7 @@ void scan(int nodeList[NODES][DATA])
 			else
 			{
 				simLog("FATAL ERROR: expected valid direction to be picked, but there's a wall in front.");
-				break;
+				return direction;
 			}
 
 			nodePrevious = nodeID; //current node will be the next one's backpath
@@ -344,17 +347,17 @@ void scan(int nodeList[NODES][DATA])
 		if (position[0] < 0 || position[0] >= 16)
 		{
 			simLog("FATAL X position ERROR");
-			break;
+			return direction;
 		}
 		if (position[1] < 0 || position[1] >= 16)
 		{
 			simLog("FATAL Y position ERROR");
-			break;
+			return direction;
 		}
 	}
 }
 
-static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
+static void setNodePath( short int direction, short int nodeCurrent[DATA], bool wall)
 {
 	switch (direction)
 	{
@@ -418,7 +421,7 @@ static void setNodePath(short int direction, int nodeCurrent[DATA], bool wall)
 }
 
 //nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction, dist: distance between nodes
-static bool addNodePath(short int direction, int nodeCurrent[DATA], int nodeStack[DATA], int nodePrevious, short int directionPrevious, int dist)
+static bool addNodePath( short int direction, short int nodeCurrent[DATA], short int nodeStack[DATA], short int nodePrevious,  short int directionPrevious, short int dist)
 {
 	fprintf(stderr, "adding nodePrevious (%d) as path connected to nodeCurrent (%d) %d apart.\n", nodePrevious, nodeCurrent[NODEID], dist);
 	fflush(stderr);

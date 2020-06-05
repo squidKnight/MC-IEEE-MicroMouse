@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 06/04/20
+Last modified: 06/05/20
 Purpose: find the shortest path to a given node from a origin node in the nodeList array using Dijkstra's algorithm.
-Status: NOT FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -11,20 +11,19 @@ Status: NOT FINISHED, NOT TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int directionNext(int nodeCurrent[DATA], int nodeNext);
-void pathTree(int nodeList[NODES][DATA], int holdList[NODES], int nodeCurrent);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
+void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);
 
-static bool nodesExistAlt(int list[NODES / 8], int nodeID);
+static bool nodesExistAlt(short int list[NODES / 8], short int nodeID);
 
-/*void stackPath(int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[NODES], int nodeCurrent, int nodeNext)
-INPUTS: int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[NODES], int nodeCurrent, int nodeNext
+/*void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
+INPUTS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext
 	nodeList: the nodeList array.
 	pathList: blank array to be filled by stackPath() listing the order of each node to travel to from nodeCurrent to nodeNext.
 	holdList: lists the distances of each node from nodeCurrent.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
 	nodeNext: the next node to be traveled to.
-RETURNS: int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[NODES]
+RETURNS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
 	nodeList: should return unmodified.
 	pathList: directly modified by stackPath(), lists the order of nodes to take to get from nodeCurrent to nodeNext.
 	holdList: should return unmodified.
@@ -36,11 +35,11 @@ CAUTION:
 	Interacts with the holdList array passed to it directly.
 	manipulates the pathList array passed to it directly.
 */
-void stackPath(int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[NODES], int nodeCurrent, int nodeNext)
+void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
 {
 	simLog("Calculating shortest path...");
 	//initialize data-set
-	//int holdList[NODES]; //distance from nodeCurrent of each node
+	//short int holdList[NODES]; //distance from nodeCurrent of each node
 	for (int i = 0; i < NODES / 8; i++)
 	{
 		pathList[i] = INFINITY;
@@ -51,20 +50,20 @@ void stackPath(int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[
 	//pathTree(nodeList, holdList, nodeCurrent);
 
 	//calculate backpath from nextNode to nodeCurrent
-	int nodeID = nodeNext;
-	int reverseList[NODES / 8];
+	short int nodeID = nodeNext;
+	short int reverseList[NODES / 8];
 	for (int i = 0; i < NODES / 8; i++)
 		reverseList[i] = INFINITY;
 	reverseList[0] = nodeID;
-	int x = 0;
+	short int x = 0;
 	simLog("Generating Path...");
 	while (nodeID != nodeCurrent)
 	{
-		int minDist = INFINITY;
-		int vert = stackCheck(nodeList, nodeID);
+		short int minDist = INFINITY;
+		short int vert = stackCheck(nodeList, nodeID);
 		if (vert == INFINITY)
 			return;
-		int stick = stackCheck(nodeList, nodeList[vert][NODEID_T]);
+		short int stick = stackCheck(nodeList, nodeList[vert][NODEID_T]);
 		if ((stick != INFINITY) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
@@ -108,7 +107,7 @@ void stackPath(int nodeList[NODES][DATA], int pathList[NODES / 8], int holdList[
 	}
 }
 
-static bool nodesExistAlt(int list[NODES / 8], int nodeID)
+static bool nodesExistAlt(short int list[NODES / 8], short int nodeID)
 {
 	for (int i = 0; i < NODES / 8; i++)
 	{

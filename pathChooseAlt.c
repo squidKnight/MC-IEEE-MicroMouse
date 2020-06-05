@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 06/04/20
+Last modified: 06/05/20
 Purpose: choose next not fully explored node and travel to it.
-Status: NOT FINISHED, TESTED
+Status: FINISHED, TESTED
 */
 
 #include "API.h"
@@ -11,23 +11,23 @@ Status: NOT FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int updateDir(short int direction, short int relativeChange);
-int getID(int position[2]);
-int pathCheck(int position[2], short int *dire);
-void updatePos(int position[2], short int direction, short int dist);
+short int getID(short int position[2]);
+short int pathCheck(short int position[2], short int *dire);
+void updatePos(short int position[2], short int direction, short int dist);
 short int changeDir(short int direction, short int newDirection);
-void stackPath(int nodeList[NODES][DATA], int pathList[NODES / 4], int holdList[NODES], int nodeCurrent, int nodeNext);
-void pathTree(int nodeList[NODES][DATA], int holdList[NODES], int nodeCurrent);
-short int directionNext(int nodeCurrent[DATA], int nodeNext);
+void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext);
+void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);
+short int directionNext(short int nodeCurrent[DATA], short int nodeNext);
 
-/*short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent,short int direction, int position[2])
-INPUTS: int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2]
+/*short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
+INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
 	nodeList: the nodeList array.
 	nodeCurrent: rank of the current node on the stack that the micromouse is at and must choose the next path for.
 	direction: the current direction of the micromouse in relation to its original orientation.
 	position: the current position of the micromouse. Implemented for use with the position array in scan.c
-RETURNS: short int dire, int nodeList[NODES][DATA]
+RETURNS: short int dire, short int nodeList[NODES][DATA]
 	dire: a new variable for the new direction, which is returned.
 	position: updates the position directly.
 	nodeList: updates the explored directions directly.
@@ -43,19 +43,19 @@ CAUTION:
 	Manipulates the nodeList array passed to it directly.
 	Manipulates the position array passed to it directly via updatePos().
 */
-short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int direction, int position[2])
+short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2])
 {
 	short int dire = direction;
 
 	simLog("Searching for unexplored path along backpath...");
-	int nodeID = nodeList[nodeCurrent][NODEID];
+	short int nodeID = nodeList[nodeCurrent][NODEID];
 
 	nodeID = getID(position);
 	//find next node not fully explored
-	int nodeNextID = nodeID;
-	int holdList[NODES];
+	short int nodeNextID = nodeID;
+	short int holdList[NODES];
 	pathTree(nodeList, holdList, nodeID);
-	int minDist = INFINITY;
+	short int minDist = INFINITY;
 	for (int i = 0; i < NODES; i++)
 	{
 		if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
@@ -75,11 +75,11 @@ short int pathChooseAlt(int nodeList[NODES][DATA], int nodeCurrent, short int di
 
 	//calculate route from nodeNext to start
 	simLog("calculating route from nodeNext to current node...");
-	int pathList[NODES / 8];
+	short int pathList[NODES / 8];
 	stackPath(nodeList, pathList, holdList, nodeList[nodeCurrent][NODEID], nodeNextID);
 
 	//traverse maze along chosen path to nodeNext
-	int x = 0;
+	short int x = 0;
 	while (nodeID != nodeNextID)
 	{
 		if (pathList[x] == INFINITY)
