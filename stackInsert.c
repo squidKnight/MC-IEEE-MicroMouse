@@ -1,6 +1,6 @@
 /*
 Written by SquidKnight, Mathazzar
-Last modified: 05/26/20
+Last modified: 06/05/20
 Purpose: add the current node to the stack
 Status: FINISHED, TESTED
 */
@@ -12,11 +12,11 @@ Status: FINISHED, TESTED
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
-/*int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
-INPUTS: int nodeList[NODES][DATA], int nodeCurrent[DATA]
+/*short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA])
+INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent[DATA]
 	nodeList: the nodeList array
 	nodeCurrent: nodeCurrent array
-RETURNS: int stack int nodeList[NODES][DATA]
+RETURNS: short int stack short int nodeList[NODES][DATA]
 	stack: the position in the nodeList array which the new node was added at.
 	nodeList: the nodeList array. Directly maipulated instead of being passed back.
 NOTES:
@@ -27,15 +27,15 @@ CAUTION:
 	the stack variable must be stored externally to directly go to the location in the nodeList array the added node is now stored at.
 	Primary function to interact with the nodeList array.
 */
-int stackInsert(int nodeList[NODES][DATA], int nodeCurrent[DATA])
+short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA])
 {
 	simLog("\t\tInserting node to stack...");
 	bool rankFound = 0; //becomes 1 when stack rank for new node is found
-	int stack;
-	int tempArr[DATA]; //temporary storage array to allow for swaping in stack
+	short int stack;
+	short int tempArr[DATA]; //temporary storage array to allow for swaping in stack
 	for (int i = 0; i < NODES; i++) //hope element 256 has nothing in it... (skipped in this loop)
 	{
-		/*if (nodeList[i][0] != INFINITY) //print current ranking node to debug
+		/*if (nodeList[i][0] != INFINITY) //prshort int current ranking node to debug
 		{
 			fprintf(stderr, "\t\t\tRank of node %d: %d \n", nodeList[i][0], i);
 			fflush(stderr);
