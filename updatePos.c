@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 05/26/20
+Last modified: 06/05/20
 Purpose: update the position of the micromouse.
-Status: FINISHED, PARTIALLY TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdio.h>
@@ -21,7 +21,7 @@ NOTES:
 CAUTION:
 	Manipulates the position array passed to it directly.
 */
-void updatePos(int position[2], short int direction, short int dist)
+void updatePos(short int position[2], short int direction, short int dist)
 {
 	//fprintf(stderr, "moving from (%d, %d, %d) %d units to ", position[0], position[1], direction, dist);
 	//fflush(stderr);
