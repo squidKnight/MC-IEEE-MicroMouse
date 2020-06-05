@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/25/20
+Last modified: 06/05/20
 Purpose: choose next direction to take at a revisited node.
 Status: FINISHED, TESTED
 */
@@ -11,15 +11,15 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-int stackCheck(int nodeList[NODES][DATA], int nodeCurrent); //adds new node into correct rank in stack based on distance
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
 short int updateDir(short int direction, short int relativeChange);
 
-/*short int pathChoose(int nodeList[NODES][DATA], int nodeCurrent,short int direction)
-INPUTS: int nodeList[NODES][DATA], int nodeCurrent, short int direction
+/*short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent,short int direction)
+INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent, short int direction
 	nodeList: the nodeList array
 	nodeCurrent: rank of the current node on the stack that the micromouse is at and must choose the next path for
 	direction: the current direction of the micromouse in relation to its original orientation.
-RETURNS: short int dire, int nodeList[NODES][DATA]
+RETURNS: short int dire, short int nodeList[NODES][DATA]
 	dire: a new variable for the new direction, which is returned.
 	nodeList: updates the explored directions directly.
 NOTES:
@@ -30,7 +30,7 @@ NOTES:
 CAUTION:
 	Manipulates the nodeList array passed to it directly.
 */
-short int pathChoose(int nodeList[NODES][DATA], int nodeCurrent, short int direction)
+short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent, short int direction)
 {
 	short int dire = direction;
 	short int front, right, back, left;
