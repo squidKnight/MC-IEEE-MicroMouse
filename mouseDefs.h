@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/29/20
+Last modified: 06/04/20
 Purpose: store universal constants for data.
 Status: FINISHED, TESTED
 */
@@ -11,7 +11,7 @@ Status: FINISHED, TESTED
 
 //nodeList array definitions
 #define NODES 256//number of possible nodes that can be stored in the nodeList array
-#define DATA 11//number of data-points in the nodeList array
+#define DATA 9//number of data-points in the nodeList array
 /*
 	[0]nodeID, [1]abbsolute distance from start(sorting method), [2]backpath nodeID, 
 	path nodeIDs(INFINITY=WALL, unexplored=0):
@@ -22,13 +22,11 @@ Status: FINISHED, TESTED
 
 //data-points for easy absolute clarification
 #define NODEID 0
-#define DIST 1
-#define NODEID_P 2
-#define NODEID_T 3
-#define NODEID_R 4
-#define NODEID_B 5
-#define NODEID_L 6
-#define DIST_T 7
-#define DIST_R 8
-#define DIST_B 9
-#define DIST_L 10
+#define NODEID_T 1
+#define NODEID_R 2
+#define NODEID_B 3
+#define NODEID_L 4
+#define DIST_T 5
+#define DIST_R 6
+#define DIST_B 7
+#define DIST_L 8
