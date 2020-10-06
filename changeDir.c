@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 05/29/20
+Last modified: 10/6/20
 Purpose: change the dirction the micromouse to a specific desired direction.
 Status: FINISHED, TESTED
 */
@@ -11,7 +11,7 @@ Status: FINISHED, TESTED
 
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int updateDir(short int direction, short int relativeChange);
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 
 /*short int changeDir(short int direction, short int newDirection)
 INPUTS: short int direction, short int newDirection
