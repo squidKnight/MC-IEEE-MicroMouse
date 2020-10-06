@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: scan the maze.
 Status: FINISHED, TESTED
 */
@@ -11,12 +11,12 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int nodeCheck();
-void updatePos(short int position[2],  short int direction,  short int dist);
- short int updateDir( short int direction,  short int relativeChange);
-short int getID(short int position[2]);
-short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA]);
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node short into correct rank in stack based on distance
+short int nodeCheck(); //checks to see if the current location is a node
+void updatePos(short int position[2],  short int direction,  short int dist); //updates the position of the micromouse
+ short int updateDir( short int direction,  short int relativeChange); //updates the direction the micromouse is facing
+short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
+short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA]); //inserts nodeCurrent into the nodeList array
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
  short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent,  short int direction);
 short int pathCheck(short int position[2],  short int *dire);
  short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent,  short int direction, short int position[2]);
@@ -64,7 +64,6 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 	{
 		//continue till next node
 		distLastNode += pathCheck(position, &direction);
-		//distTotal += distLastNode;
 		simLog("\tEncountered node:");
 		
 		if (nodeCheck() == 1) //if maze node
@@ -80,7 +79,6 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				//create node
 				short int nodeCurrent[DATA]; //stores all information on current node
 				nodeCurrent[NODEID] = nodeID; //node ID
-				//nodeCurrent[DIST] = distTotal; //distance traveled
 				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
 				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
 				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
@@ -230,7 +228,7 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				fprintf(stderr, "NODEID: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
 				fflush(stderr);
 				//set directions for current orientation
-				 short int front, right, back, left;
+				short int front, right, back, left;
 				switch (direction)
 				{
 				case 0:
@@ -266,7 +264,7 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				{
 					simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
 					
-					 short int san = 0;
+					short int san = 0;
 					for (int i = 0; i < NODES; i++)
 					{
 						if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
@@ -286,7 +284,7 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 						fflush(stderr);
 					}
 					
-					direction = pathChooseAlt(nodeList, rank, direction, position);
+					direction = pathChooseAlt(nodeList, rank, direction, position); //travel to next nearest not fully explored node
 					nodeID = getID(position);
 					rank = stackCheck(nodeList, nodeID);
 					distLastNode = 0;
