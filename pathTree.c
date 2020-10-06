@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: generate a minimum spanning tree from a given node to all other nodes.
 Status: FINISHED, TESTED
 */
@@ -11,8 +11,8 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int directionNext(short int nodeCurrent[DATA], short int nodeNext);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
+short int directionNext(short int nodeCurrent[DATA], short int nodeNext); //identifies the direction of the current node's backpath to prevent longer path to the next node being taken
 
 static bool nodesExist(bool hold[NODES]);
 
