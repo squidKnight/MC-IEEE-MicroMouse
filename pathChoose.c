@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: choose next direction to take at a revisited node.
 Status: FINISHED, TESTED
 */
@@ -11,8 +11,8 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int updateDir(short int direction, short int relativeChange);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 
 /*short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent,short int direction)
 INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent, short int direction
