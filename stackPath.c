@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: find the shortest path to a given node from a origin node in the nodeList array using Dijkstra's algorithm.
 Status: FINISHED, TESTED
 */
@@ -11,8 +11,7 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
-void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
 
 static bool nodesExistAlt(short int list[NODES / 8], short int nodeID);
 
@@ -20,7 +19,7 @@ static bool nodesExistAlt(short int list[NODES / 8], short int nodeID);
 INPUTS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext
 	nodeList: the nodeList array.
 	pathList: blank array to be filled by stackPath() listing the order of each node to travel to from nodeCurrent to nodeNext.
-	holdList: lists the distances of each node from nodeCurrent.
+	holdList: lists the distances of each node from nodeCurrent. Minimum Spanning Tree.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
 	nodeNext: the next node to be traveled to.
 RETURNS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
@@ -39,15 +38,10 @@ void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], s
 {
 	simLog("Calculating shortest path...");
 	//initialize data-set
-	//short int holdList[NODES]; //distance from nodeCurrent of each node
 	for (int i = 0; i < NODES / 8; i++)
 	{
 		pathList[i] = INFINITY;
 	}
-	//holdList[stackCheck(nodeList, nodeCurrent)] = 0;
-
-	//generate minimum spanning tree
-	//pathTree(nodeList, holdList, nodeCurrent);
 
 	//calculate backpath from nextNode to nodeCurrent
 	short int nodeID = nodeNext;
