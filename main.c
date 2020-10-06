@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: run the program on the simulator, which requires a main.c
 
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
@@ -13,11 +13,11 @@ short int nodeList[NODES][DATA];
 
 void nodeInit(short int nodeList[NODES][DATA]); //initialize nodeList
 short int scan(short int nodeList[NODES][DATA], short int position[2], short int direction); //scans the maze
-void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent); //generates minimum spanning tree from current node
-void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext);
-short int getID(short int position[2]);
-short int rtb(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext);
-short int updateDir(short int direction, short int relativeChange);
+void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent); //generates minimum spanning tree from nodeCurrent
+void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
+short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
+short int rtb(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext); //moves the micromouse to nodeNext from anywhere in the maze
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 
 int main()
 {
