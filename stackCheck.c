@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: check if the current node is already on the stack
 Status: FINISHED, TESTED
 */
