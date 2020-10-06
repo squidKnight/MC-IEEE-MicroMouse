@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: move to next node.
 Status: FINISHED, TESTED
 */
@@ -10,10 +10,10 @@ Status: FINISHED, TESTED
 #include <stdbool.h>
 #include "mouseDefs.h"
 
-short int nodeCheck();
-short int updateDir(short int direction, short int relativeChange);
+short int nodeCheck(); //checks to see if the current location is a node
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-void updatePos(short int position[2], short int direction, short int dist);
+void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
 
 /*int checkPath(int position[2], short int *dire)
 INPUTS: int position[2], short int *dire
@@ -42,7 +42,6 @@ short int pathCheck(short int position[2], short int *dire)
 		else if (!API_wallRight())
 		{
 			updatePos(position, *dire, dist);
-			//simLog("\t\tEncountered corner...\n");
 			API_setColor(position[0], position[1], 'G');
 			API_turnRight();
 			distLastNode += dist + 1;
@@ -52,7 +51,6 @@ short int pathCheck(short int position[2], short int *dire)
 		else if (!API_wallLeft())
 		{
 			updatePos(position, *dire, dist);
-			//simLog("\t\tEncountered corner...\n");
 			API_setColor(position[0], position[1], 'G');
 			API_turnLeft();
 			distLastNode += dist + 1;
