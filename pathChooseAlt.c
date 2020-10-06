@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
+Last modified: 10/06/20
 Purpose: choose next not fully explored node and travel to it.
 Status: FINISHED, TESTED
 */
@@ -11,15 +11,15 @@ Status: FINISHED, TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node into correct rank in stack based on distance
-short int updateDir(short int direction, short int relativeChange);
-short int getID(short int position[2]);
-short int pathCheck(short int position[2], short int *dire);
-void updatePos(short int position[2], short int direction, short int dist);
-short int changeDir(short int direction, short int newDirection);
-void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext);
-void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);
-short int directionNext(short int nodeCurrent[DATA], short int nodeNext);
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
+short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
+short int pathCheck(short int position[2], short int *dire); //Move's micromouse to the next node
+void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
+short int changeDir(short int direction, short int newDirection); //changes the dirction the micromouse to a specific desired direction
+void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
+void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);  //generates minimum spanning tree from nodeCurrent
+short int directionNext(short int nodeCurrent[DATA], short int nodeNext); //identifies the direction of the current node's backpath to prevent longer path to the next node being taken
 
 /*short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
 INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
