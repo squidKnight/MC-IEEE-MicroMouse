@@ -1,7 +1,7 @@
 /*
 Written by Mathazzar
-Last modified: 06/05/20
-Purpose: return the micromouse from an arbitrary point in the maze to start.
+Last modified: 10/06/20
+Purpose: return the micromouse from an arbitrary point in the maze to nodeNext.
 */
 
 #include <stdbool.h>
@@ -10,10 +10,10 @@ Purpose: return the micromouse from an arbitrary point in the maze to start.
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int nodeCheck();
-short int updateDir(short int direction, short int relativeChange);
-short int getID(short int position[2]);
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //adds new node short into correct rank in stack based on distance
+short int nodeCheck(); //checks to see if the current location is a node
+short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
+short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
+short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
 
 /*short int rtb(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext)
 INPUTS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext
