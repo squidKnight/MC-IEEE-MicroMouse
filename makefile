@@ -1,5 +1,5 @@
 #Written by squidKnight
-#Last modified: 04/03/20
+#Last modified: 10/06/20
 #really only needed for the simulator (but would be nice to include in final prorgam)
 #based off of these examples: www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 #To use in the simulator, type "make mouseSim.x" in the "Build Command" space
@@ -10,7 +10,6 @@ FLAGS = -O3 #optimization flag
 OBJ = main.o \
 	  API.o \
 	  changeDir.o \
-	  directionBack.o \
 	  directionNext.o \
 	  getID.o \
 	  nodeCheck.o \
@@ -27,7 +26,6 @@ OBJ = main.o \
 	  stackPath.o \
 	  updateDir.o \
 	  updatePos.o \
-
 
 %.o : %.c
 	$(COMP) ${FLAGS} -c -o $@ $<
