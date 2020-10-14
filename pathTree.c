@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 10/06/20
+Last modified: 10/14/20
 Purpose: generate a minimum spanning tree from a given node to all other nodes.
-Status: UNFINISHED, NOT TESTED
+Status: FINISHED, NOT TESTED
 */
 
 #include <stdbool.h>
@@ -11,17 +11,21 @@ Status: UNFINISHED, NOT TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
-short int directionNext(short int nodeCurrent[DATA], short int nodeNext); //identifies the direction of the current node's backpath to prevent longer path to the next node being taken
+bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 
 static bool nodesExist(bool hold[NODES]);
+static short int node(short int nodeID);
+static short int node_T(short int nodeID);
+static short int node_R(short int nodeID);
+static short int node_B(short int nodeID);
+static short int node_L(short int nodeID);
 
-/*void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
+/*void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
 INPUTS: short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent
 	nodeList: the nodeList array.
 	holdList: blank array to be filled by pathTree() listing the distances of each node from nodeCurrent.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
-RETURNS: short int nodeList[NODES][DATA], short int holdList[NODES]
+RETURNS: bool nodeList[NODES][DATA], short int holdList[NODES]
 	nodeList: should return unmodified.
 	holdList: directly modified by pathTree(), lists the distances of each node from nodeCurrent.
 NOTES:
@@ -32,8 +36,9 @@ CAUTION:
 	Manipulates the holdList array passed to it directly.
 	Currently gets stuck in a loop if the start node is a node(if it's a corner and not a deadend, traveling to it from any other node
 		will cause the micromouse to pass over it and continue to the opposite node connected to it and link them together instead).
+		Need to test if solved with new implementation.
 */
-void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
+void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
 {
 	simLog("Generating Minimum Spanning Tree...");
 	//initialize data-set
@@ -41,22 +46,21 @@ void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short 
 	for (int i = 0; i < NODES; i++)
 	{
 		holdList[i] = INFINITY;
-		if (nodeList[i][NODEID] != INFINITY)
+		if (nodeCheck(nodeList[i])) //if it's a node, it shouldn't hold
 			hold[i] = false;
 		else
 			hold[i] = true;
 	}
-	short int vert = stackCheck(nodeList, nodeCurrent);
-	if (vert == INFINITY)
+	if (!nodeCheck(nodeCurrent - 1))
 	{
 		simLog("CRITICAL ERROR: nodeCurrent can't be found on stack.");
 		return;
 	}
 	else
-		holdList[vert] = 0;
+		holdList[nodeCurrent - 1] = 0;
 	for (int i = 0; i < NODES; i++)
 	{
-		fprintf(stderr, "\t\t\tnodeID: %d, holdList: %d, hold: %d\n", nodeList[i][NODEID], holdList[i], hold[i]);
+		fprintf(stderr, "\t\t\tnodeID: %d, holdList: %d, hold: %d\n", i + 1, holdList[i], hold[i]);
 		fflush(stderr);
 	}
 
@@ -72,7 +76,7 @@ void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short 
 			if (!hold[i] && (holdList[i] < minDist))
 			{
 				minDist = holdList[i];
-				minID = nodeList[i][NODEID];
+				minID = i + 1;
 				minStack = i;
 			}
 		}
@@ -82,30 +86,26 @@ void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short 
 
 		//calculated distances for adjacent nodes
 		simLog("top");
-		short int stackCurrent = stackCheck(nodeList, nodeList[minStack][NODEID_T]); //check top
-		if ((stackCurrent != INFINITY) && !hold[stackCurrent] && (nodeList[minStack][NODEID_T] != 0))
-			if ((minDist + nodeList[minStack][DIST_T]) < holdList[stackCurrent])
-				holdList[stackCurrent] = nodeList[minStack][DIST_T] + minDist;
+		short int stackCurrent = node_T(minStack); //check top
+		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_T] && nodeList[stackCurrent][WAL_B]))
+			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("right");
-		stackCurrent = stackCheck(nodeList, nodeList[minStack][NODEID_R]); //check right
-		if ((stackCurrent != INFINITY) && !hold[stackCurrent] && (nodeList[minStack][NODEID_R] != 0))
-			if ((minDist + nodeList[minStack][DIST_R]) < holdList[stackCurrent])
-				holdList[stackCurrent] = nodeList[minStack][DIST_R] + minDist;
+		stackCurrent = node_R(minStack); //check right
+		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_R] && nodeList[stackCurrent][WAL_L]))
+			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("bottom");
-		stackCurrent = stackCheck(nodeList, nodeList[minStack][NODEID_B]); //check bottom
-		if ((stackCurrent != INFINITY) && !hold[stackCurrent] && (nodeList[minStack][NODEID_B] != 0))
-			if ((minDist + nodeList[minStack][DIST_B]) < holdList[stackCurrent])
-				holdList[stackCurrent] = nodeList[minStack][DIST_B] + minDist;
+		stackCurrent = node_B(minStack); //check bottom
+		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_B] && nodeList[stackCurrent][WAL_T]))
+			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("left");
-		stackCurrent = stackCheck(nodeList, nodeList[minStack][NODEID_L]); //check left
-		if ((stackCurrent != INFINITY) && !hold[stackCurrent] && (nodeList[minStack][NODEID_L] != 0))
-			if ((minDist + nodeList[minStack][DIST_L]) < holdList[stackCurrent])
-				holdList[stackCurrent] = nodeList[minStack][DIST_L] + minDist;
+		stackCurrent = node_L(minStack); //check left
+		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_L] && nodeList[stackCurrent][WAL_R]))
+			holdList[stackCurrent] = holdList[minStack] + 1;
 	}
 	simLog("Minimum Spanning Tree Generated:");
 	for (int i = 0; i < NODES; i++)
 	{
-		fprintf(stderr, "\t\t\tnodeID: %d, holdList: %d, hold: %d\n", nodeList[i][NODEID], holdList[i], hold[i]);
+		fprintf(stderr, "\t\t\tnodeID: %d, holdList: %d, hold: %d\n", i + 1, holdList[i], hold[i]);
 		fflush(stderr);
 	}
 }
@@ -116,10 +116,35 @@ static bool nodesExist(bool hold[NODES])
 	{
 		if (!hold[i])
 		{
-			fprintf(stderr, "%d exists\n", i);
+			fprintf(stderr, "nodeID %d exists\n", i + 1);
 			fflush(stderr);
 			return true;
 		}
 	}
 	return false;
+}
+
+static short int node(short int nodeID)
+{
+	return nodeID;
+}
+
+static short int node_T(short int nodeID)
+{
+	return nodeID + 16;
+}
+
+static short int node_R(short int nodeID)
+{
+	return nodeID + 1;
+}
+
+static short int node_B(short int nodeID)
+{
+	return nodeID - 16;
+}
+
+static short int node_L(short int nodeID)
+{
+	return nodeID - 1;
 }
