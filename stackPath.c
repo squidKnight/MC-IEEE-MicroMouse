@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/14/20
 Purpose: find the shortest path to a given node from a origin node in the nodeList array using Dijkstra's algorithm.
-Status: UNFINISHED, NOT TESTED
+Status: FINISHED, NOT TESTED
 */
 
 #include <stdbool.h>
@@ -11,18 +11,23 @@ Status: UNFINISHED, NOT TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
+bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 
 static bool nodesExistAlt(short int list[NODES / 8], short int nodeID);
+static short int node(short int nodeID);
+static short int node_T(short int nodeID);
+static short int node_R(short int nodeID);
+static short int node_B(short int nodeID);
+static short int node_L(short int nodeID);
 
-/*void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
-INPUTS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext
+/*void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
+INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext
 	nodeList: the nodeList array.
 	pathList: blank array to be filled by stackPath() listing the order of each node to travel to from nodeCurrent to nodeNext.
 	holdList: lists the distances of each node from nodeCurrent. Minimum Spanning Tree.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
 	nodeNext: the next node to be traveled to.
-RETURNS: short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
+RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
 	nodeList: should return unmodified.
 	pathList: directly modified by stackPath(), lists the order of nodes to take to get from nodeCurrent to nodeNext.
 	holdList: should return unmodified.
@@ -34,7 +39,7 @@ CAUTION:
 	Interacts with the holdList array passed to it directly.
 	Manipulates the pathList array passed to it directly.
 */
-void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
+void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
 {
 	simLog("Calculating shortest path...");
 	//initialize data-set
@@ -54,32 +59,32 @@ void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], s
 	while (nodeID != nodeCurrent)
 	{
 		short int minDist = INFINITY;
-		short int vert = stackCheck(nodeList, nodeID);
-		if (vert == INFINITY)
+		short int vert = nodeID - 1;
+		if (!nodeCheck(vert))
 			return;
-		short int stick = stackCheck(nodeList, nodeList[vert][NODEID_T]);
-		if ((stick != INFINITY) && (holdList[stick] < minDist))
+		short int stick = node_T(vert);
+		if (nodeCheck(stick) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
-			nodeID = nodeList[stick][NODEID];
+			nodeID = stick + 1;
 		}
-		stick = stackCheck(nodeList, nodeList[vert][NODEID_R]);
-		if ((stick != INFINITY) && (holdList[stick] < minDist))
+		stick = node_R(vert);
+		if (nodeCheck(stick) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
-			nodeID = nodeList[stick][NODEID];
+			nodeID = stick + 1;
 		}
-		stick = stackCheck(nodeList, nodeList[vert][NODEID_B]);
-		if ((stick != INFINITY) && (holdList[stick] < minDist))
+		stick = node_B(vert);
+		if (nodeCheck(stick) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
-			nodeID = nodeList[stick][NODEID];
+			nodeID = stick + 1;
 		}
-		stick = stackCheck(nodeList, nodeList[vert][NODEID_L]);
-		if ((stick != INFINITY) && (holdList[stick] < minDist))
+		stick = node_L(vert);
+		if (nodeCheck(stick) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
-			nodeID = nodeList[stick][NODEID];
+			nodeID = stick + 1;
 		}
 
 		if (nodesExistAlt(reverseList, nodeID))
@@ -109,4 +114,29 @@ static bool nodesExistAlt(short int list[NODES / 8], short int nodeID)
 			return true;
 	}
 	return false;
+}
+
+static short int node(short int nodeID)
+{
+	return nodeID;
+}
+
+static short int node_T(short int nodeID)
+{
+	return nodeID + 16;
+}
+
+static short int node_R(short int nodeID)
+{
+	return nodeID + 1;
+}
+
+static short int node_B(short int nodeID)
+{
+	return nodeID - 16;
+}
+
+static short int node_L(short int nodeID)
+{
+	return nodeID - 1;
 }
