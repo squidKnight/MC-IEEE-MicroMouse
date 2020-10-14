@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 10/13/20
+Last modified: 10/14/20
 Purpose: store universal constants for data.
 Status: FINISHED, NOT TESTED
 */
@@ -15,7 +15,7 @@ Status: FINISHED, NOT TESTED
 #define NODES 256//number of possible nodes that can be stored in the nodeList array
 #define DATA 8//number of data-points in the nodeList array
 
-/*nodeList[NODES][DATA]
+/*bool nodeList[NODES][DATA]
 nodeID - 1 = nodeList[i]
 if path top: nodeID_T = i + 16 (nodeID + 15)
 if path right: nodeID_R = i + 1 (nodeID)
