@@ -14,6 +14,7 @@ void simLog(char* text); //modified from main.c in mms example (https://github.c
 void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
+bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]);
 
 /*void scan(bool nodeList[NODES][DATA], short int position[2], short int direction)
@@ -88,11 +89,11 @@ short int scan(bool nodeList[NODES][DATA], short int position[2], short int dire
 			break;
 		}
 		
-		if (nodeList[nodeID - 1][EXP_T] || nodeList[nodeID - 1][EXP_R] || nodeList[nodeID - 1][EXP_B] || nodeList[nodeID - 1][EXP_L]) //node already visited
+		if (nodeCheck(nodeList[nodeID - 1])) //node already visited
 		{
 
 			//Choose next available route, not previously traveled if possible
-			if ((nodeList[nodeID - 1][ef] == false) && (nodeList[nodeID - 1][el] == false) && (nodeList[nodeID - 1][er] == false)) //if no unexplored directions
+			if (!nodeList[nodeID - 1][ef] && !nodeList[nodeID - 1][el] && !nodeList[nodeID - 1][er]) //if no unexplored directions
 			{
 				simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
 
@@ -100,7 +101,7 @@ short int scan(bool nodeList[NODES][DATA], short int position[2], short int dire
 				short int san = 0;
 				for (int i = 0; i < NODES; i++)
 				{
-					if ((nodeList[i][EXP_T] == true) || (nodeList[i][EXP_R] == true) || (nodeList[i][EXP_B] == true) || (nodeList[i][EXP_L] == true))
+					if (nodeList[i][EXP_T] || nodeList[i][EXP_R] || nodeList[i][EXP_B] || nodeList[i][EXP_L])
 					{
 						break;
 					}
