@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/14/20
 Purpose: check to see if the current location is a node
-Status: UNFINISHED, NOT TESTED
+Status: FINISHED, NOT TESTED
 */
 
 #include "API.h" //only needed for simulator use
