@@ -1,8 +1,8 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 10/13/20
+Last modified: 10/14/20
 Purpose: scan the maze.
-Status: UNFINISHED, NOT TESTED
+Status: FINISHED, NOT TESTED
 */
 
 #include <stdbool.h>
@@ -11,65 +11,34 @@ Status: UNFINISHED, NOT TESTED
 #include "mouseDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int nodeCheck(); //checks to see if the current location is a node
 void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
-short int stackInsert(short int nodeList[NODES][DATA], short int nodeCurrent[DATA]); //inserts nodeCurrent into the nodeList array
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
-short int pathChoose(short int nodeList[NODES][DATA], short int nodeCurrent, short int direction);
-short int pathCheck(short int position[2], short int *dire);
-short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]);
+short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]);
 
-static void setNodePath(short int direction, short int nodeCurrent[DATA], bool wall);
-static bool addNodePath(short int direction, short int nodeCurrent[DATA], short int nodeStack[DATA], short int nodePrevious, short int directionPrevious, short int dist);
-
-/*void scan(short int nodeList[NODES][DATA], short int position[2], short int direction)
-INPUTS: short int nodeList[NODES][DATA]
+/*void scan(bool nodeList[NODES][DATA], short int position[2], short int direction)
+INPUTS: bool nodeList[NODES][DATA], short int position[2], short int direction
 	nodeList: the nodeList array.
 	position: the position array.
 	direction: the current orientation of the micromouse.
-RETURNS: short int nodeList[NODES][DATA]
+RETURNS: bool nodeList[NODES][DATA], short int position[2], short int direction
 	nodeList: updates the nodeList array directly.
+	position: updates the position array directly.
 	direction: the new direction of the micromouse.
 NOTES:
-	implemented to be called from main.c
+	implemented to be called from main.c as
+		direction = scan(nodeList, position, direction);
 	Designed to intentionally crash and return to a higher function when no unexplored paths exist.
 	Master function for exploring the maze.
 CAUTION:
 	Manipulates the nodeList array directly.
-	Internal [positioning variables are not stored universaly and will not be passed to the function that called it, they will have to be reconstructed from the nodeList array's data.
+	Manipulates the position array directly.
 */
-short int scan(short int nodeList[NODES][DATA], short int position[2], short int direction)
+short int scan(bool nodeList[NODES][DATA], short int position[2], short int direction)
 {
-	short int nodePrevious = 1;
-	short int stack = 0;
-	short int directionPrevious = direction; //stores direction that the last node exited from
-	if (API_wallFront())
-	{
-		if (!API_wallLeft())
-			directionPrevious = updateDir(direction, 3);
-		else if (!API_wallRight())
-			directionPrevious = updateDir(direction, 1);
-		else
-			directionPrevious = updateDir(direction, 2);
-	}
-
 	simLog("Begining maze scan...");
 	while (1 == 1)
 	{
-		//move to next node
-		if (!API_wallFront())
-		{
-			API_moveForward();
-			updatePos(position, direction, 1);
-		}
-		else
-		{
-			simLog("FATAL ERROR: expected a valid path, but there's a wall");
-			return;
-		}
-
 		//record node
 		short int nodeID = getID(position);
 
@@ -127,6 +96,7 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 			{
 				simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
 
+				//Verify that there are still explorable nodes in the nodeList array
 				short int san = 0;
 				for (int i = 0; i < NODES; i++)
 				{
@@ -138,7 +108,7 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				}
 				if (san == NODES - 1)
 				{
-					simLog("FATAL ERROR: All nodes have been fully explored.");
+					simLog("All nodes have been fully explored.\n\t\tENDING SCAN");
 					return direction;
 				}
 				else
@@ -148,6 +118,8 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				}
 
 				//travel to next nearest not fully explored node
+				direction = pathChooseAlt(nodeList, nodeID, direction, position);
+				nodeID = getID(position);
 			}
 			else
 			{
@@ -155,16 +127,19 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				if (!API_wallFront())
 				{
 					direction = updateDir(direction, 0);
+					nodeList[nodeID - 1][ef] = false;
 				}
 				else if (!API_wallLeft())
 				{
 					API_turnLeft();
 					direction = updateDir(direction, 3);
+					nodeList[nodeID - 1][el] = false;
 				}
 				else if (!API_wallRight())
 				{
 					API_turnRight();
 					direction = updateDir(direction, 1);
+					nodeList[nodeID - 1][er] = false;
 				}
 				else
 				{
@@ -202,16 +177,19 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 			if (!API_wallFront())
 			{
 				direction = updateDir(direction, 0);
+				nodeList[nodeID - 1][ef] = false;
 			}
 			else if (!API_wallLeft())
 			{
 				API_turnLeft();
 				direction = updateDir(direction, 3);
+				nodeList[nodeID - 1][el] = false;
 			}
 			else if (!API_wallRight())
 			{
 				API_turnRight();
 				direction = updateDir(direction, 1);
+				nodeList[nodeID - 1][er] = false;
 			}
 			else
 			{
@@ -221,281 +199,17 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 				direction = updateDir(direction, 2);
 			}
 		}
-		//distLastNode += pathCheck(position, &direction);
-		simLog("\tEncountered node:");
 
-		if (nodeCheck() == 1) //if maze node
+		//Move beyond current node
+		if (!API_wallFront()) //verify that this is a valid move to prevent position errors
 		{
-			simLog("\t\tNode class: Path node\n\t\tRecording node information...");
-			API_setColor(position[0], position[1], 'B');
-
-			//short int rank = stackCheck(nodeList, nodeID);
-
-			/*if (rank == INFINITY) //if node not on stack
-			{
-				//create node
-				short int nodeCurrent[DATA]; //stores all information on current node
-				nodeCurrent[NODEID] = nodeID; //node ID
-				setNodePath(updateDir(direction, 3), nodeCurrent, API_wallLeft()); //is left a wall?
-				setNodePath(updateDir(direction, 0), nodeCurrent, API_wallFront()); //is front a wall?
-				setNodePath(updateDir(direction, 1), nodeCurrent, API_wallRight()); //is right a wall?
-				addNodePath(direction, nodeCurrent, nodeList[stack], nodePrevious, directionPrevious, distLastNode); //add backpath
-
-																													 //add node to stack
-				fprintf(stderr, "%d, %d, %d, %d, direction: %d\n\t%d, %d, %d, %d\n", nodeCurrent[NODEID_T], nodeCurrent[NODEID_R], nodeCurrent[NODEID_B], nodeCurrent[NODEID_L], direction, nodeCurrent[DIST_T], nodeCurrent[DIST_R], nodeCurrent[DIST_B], nodeCurrent[DIST_L]);
-				fflush(stderr);
-				stack = stackInsert(nodeList, nodeCurrent);
-
-				//choose path
-				if (!API_wallFront())
-				{
-					direction = updateDir(direction, 0);
-				}
-				else if (!API_wallLeft())
-				{
-					API_turnLeft();
-					direction = updateDir(direction, 3);
-				}
-				else if (!API_wallRight())
-				{
-					API_turnRight();
-					direction = updateDir(direction, 1);
-				}
-				else
-				{
-					simLog("ERROR: expected node class to be 1, not -1 DEADEND");
-				}
-			}*/
-			else if (nodeID != nodeList[0][NODEID]) //if node already on stack
-			{
-				addNodePath(direction, nodeList[rank], nodeList[stack], nodePrevious, directionPrevious, distLastNode); //add the new path
-
-				if (nodePrevious == nodeID) //if a direct loopback occured
-				{
-					simLog("Direct loopback occured, treating as deadend.");
-					fprintf(stderr, "nodeID: %d, T: %d, R: %d, B: %d, L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
-					fflush(stderr);
-					//Which direction is the loopback?
-					if (nodePrevious == nodeList[rank][NODEID_T])
-					{
-						switch (direction)
-						{
-						case 0:
-							simLog("T0");
-							nodeList[rank][NODEID_B] = INFINITY;
-							nodeList[rank][NODEID_T] = INFINITY;
-							break;
-						case 1:
-							simLog("T1");
-							nodeList[rank][NODEID_L] = INFINITY;
-							nodeList[rank][NODEID_T] = INFINITY;
-							break;
-						case 2:
-							simLog("Actual deadend, so there...T2");
-							nodeList[rank][NODEID_T] = INFINITY;
-							break;
-						case 3:
-							simLog("T3");
-							nodeList[rank][NODEID_R] = INFINITY;
-							nodeList[rank][NODEID_T] = INFINITY;
-							break;
-						}
-					}
-					else if (nodePrevious == nodeList[rank][NODEID_R])
-					{
-						switch (direction)
-						{
-						case 0:
-							simLog("R0");
-							nodeList[rank][NODEID_B] = INFINITY;
-							nodeList[rank][NODEID_R] = INFINITY;
-							break;
-						case 1:
-							simLog("R1");
-							nodeList[rank][NODEID_L] = INFINITY;
-							nodeList[rank][NODEID_R] = INFINITY;
-							break;
-						case 2:
-							simLog("R2");
-							nodeList[rank][NODEID_T] = INFINITY;
-							nodeList[rank][NODEID_R] = INFINITY;
-							break;
-						case 3:
-							simLog("Actual deadend, so there...R3");
-							nodeList[rank][NODEID_R] = INFINITY;
-							break;
-						}
-					}
-					else if (nodePrevious == nodeList[rank][NODEID_B])
-					{
-						switch (direction)
-						{
-						case 0:
-							simLog("Actual deadend, so there...B0");
-							nodeList[rank][NODEID_B] = INFINITY;
-							break;
-						case 1:
-							simLog("B1");
-							nodeList[rank][NODEID_L] = INFINITY;
-							nodeList[rank][NODEID_B] = INFINITY;
-							break;
-						case 2:
-							simLog("B2");
-							nodeList[rank][NODEID_T] = INFINITY;
-							nodeList[rank][NODEID_B] = INFINITY;
-							break;
-						case 3:
-							simLog("B3");
-							nodeList[rank][NODEID_R] = INFINITY;
-							nodeList[rank][NODEID_B] = INFINITY;
-							break;
-						}
-					}
-					else if (nodePrevious == nodeList[rank][NODEID_L])
-					{
-						switch (direction)
-						{
-						case 0:
-							simLog("L0");
-							nodeList[rank][NODEID_B] = INFINITY;
-							nodeList[rank][NODEID_L] = INFINITY;
-							break;
-						case 1:
-							simLog("Actual deadend, so there...L1");
-							nodeList[rank][NODEID_L] = INFINITY;
-							break;
-						case 2:
-							simLog("L2");
-							nodeList[rank][NODEID_T] = INFINITY;
-							nodeList[rank][NODEID_L] = INFINITY;
-							break;
-						case 3:
-							simLog("L3");
-							nodeList[rank][NODEID_R] = INFINITY;
-							nodeList[rank][NODEID_L] = INFINITY;
-							break;
-						}
-					}
-					else
-						simLog("ERROR: expected loopback, but can't find directionPrevious.");
-					fprintf(stderr, "nodeID: %d, T: %d, R: %d, B: %d, L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
-					fflush(stderr);
-				}
-
-				fprintf(stderr, "NODEID: %d, NODEID_T: %d, NODEID_R: %d, NODEID_B: %d, NODEID_L: %d\n", nodeList[rank][NODEID], nodeList[rank][NODEID_T], nodeList[rank][NODEID_R], nodeList[rank][NODEID_B], nodeList[rank][NODEID_L]);
-				fflush(stderr);
-				//set directions for current orientation
-				short int front, right, back, left;
-				switch (direction)
-				{
-				case 0:
-					front = NODEID_T;
-					right = NODEID_R;
-					back = NODEID_B;
-					left = NODEID_L;
-					break;
-				case 1:
-					front = NODEID_R;
-					right = NODEID_B;
-					back = NODEID_L;
-					left = NODEID_T;
-					break;
-				case 2:
-					front = NODEID_B;
-					right = NODEID_L;
-					back = NODEID_T;
-					left = NODEID_R;
-					break;
-				case 3:
-					front = NODEID_L;
-					right = NODEID_T;
-					back = NODEID_R;
-					left = NODEID_B;
-					break;
-				}
-				fprintf(stderr, "nodeCurrent: %d, nodeID: %d,\t\tfront: %d, right: %d, back: %d, left: %d\n", rank, nodeList[rank][NODEID], nodeList[rank][front], nodeList[rank][right], nodeList[rank][back], nodeList[rank][left]);
-				fflush(stderr);
-
-				//Choose next available route, not previously traveled if possible
-				if ((nodeList[rank][front] != 0) && (nodeList[rank][left] != 0) && (nodeList[rank][right] != 0)) //if no unexplored directions
-				{
-					simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
-
-					short int san = 0;
-					for (int i = 0; i < NODES; i++)
-					{
-						if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
-						{
-							break;
-						}
-						san = i;
-					}
-					if (san == NODES - 1)
-					{
-						simLog("FATAL ERROR: nodeList array is either full or all nodes have been fully explored.");
-						return direction;
-					}
-					else
-					{
-						fprintf(stderr, "%d\n", san);
-						fflush(stderr);
-					}
-
-					direction = pathChooseAlt(nodeList, rank, direction, position); //travel to next nearest not fully explored node
-					nodeID = getID(position);
-					rank = stackCheck(nodeList, nodeID);
-					distLastNode = 0;
-				}
-				direction = pathChoose(nodeList, rank, direction); //pick an unexplored direction
-
-				stack = rank;
-			}
-
-			//Move beyond current node
-			if (!API_wallFront()) //verify that this is a valid move to prevent position errors
-			{
-				API_moveForward();
-				updatePos(position, direction, 1);
-				distLastNode = 1;
-			}
-			else
-			{
-				simLog("FATAL ERROR: expected valid direction to be picked, but there's a wall in front.");
-				return direction;
-			}
-
-			nodePrevious = nodeID; //current node will be the next one's backpath
-			directionPrevious = direction; //record the current node's exit direction
+			API_moveForward();
+			updatePos(position, direction, 1);
 		}
-		else if (nodeCheck() == -1) //if node is a deadend
+		else
 		{
-			simLog("\t\tNode class: deadend\n\t\tReturning to previous node...");
-			API_setColor(position[0], position[1], 'R');
-
-			//return to last node, it will treat the deadend as a loopback
-			API_turnRight();
-			API_turnRight();
-			direction = updateDir(direction, 2);
-			nodePrevious = getID(position); //set as nodePrevious to force error on addNodePath() because stack doesn't match
-			pathCheck(position, &direction);
-
-			//set direction as fully explored; treat it as a wall
-			switch (direction)
-			{
-			case 0: //facing up: came from bottom
-				nodeList[stack][NODEID_B] = INFINITY;
-				break;
-			case 1: //facing right: came from left
-				nodeList[stack][NODEID_L] = INFINITY;
-				break;
-			case 2: //facing down: came from top
-				nodeList[stack][NODEID_T] = INFINITY;
-				break;
-			case 3: //facing left: came from right
-				nodeList[stack][NODEID_R] = INFINITY;
-				break;
-			}
-			//distTotal = nodeList[stack][DIST];
+			simLog("FATAL ERROR: expected valid direction to be picked, but there's a wall in front.");
+			return direction;
 		}
 
 		//vvvv debug code vvvv
@@ -510,118 +224,4 @@ short int scan(short int nodeList[NODES][DATA], short int position[2], short int
 			return direction;
 		}
 	}
-}
-
-static void setNodePath(short int direction, short int nodeCurrent[DATA], bool wall)
-{
-	switch (direction)
-	{
-	case 0:
-	{
-		if (!wall)
-		{
-			nodeCurrent[NODEID_T] = 0;
-		}
-		else if (wall)
-		{
-			//simLog("wall above");
-			nodeCurrent[NODEID_T] = INFINITY;
-		}
-		nodeCurrent[DIST_T] = INFINITY;
-		break;
-	}
-	case 1:
-	{
-		if (!wall)
-		{
-			nodeCurrent[NODEID_R] = 0;
-		}
-		else if (wall)
-		{
-			//simLog("wall right");
-			nodeCurrent[NODEID_R] = INFINITY;
-		}
-		nodeCurrent[DIST_R] = INFINITY;
-		break;
-	}
-	case 2:
-	{
-		if (!wall)
-		{
-			nodeCurrent[NODEID_B] = 0;
-		}
-		else if (wall)
-		{
-			//simLog("wall below");
-			nodeCurrent[NODEID_B] = INFINITY;
-		}
-		nodeCurrent[DIST_B] = INFINITY;
-		break;
-	}
-	case 3:
-	{
-		if (!wall)
-		{
-			nodeCurrent[NODEID_L] = 0;
-		}
-		else if (wall)
-		{
-			//simLog("wall left");
-			nodeCurrent[NODEID_L] = INFINITY;
-		}
-		nodeCurrent[DIST_L] = INFINITY;
-		break;
-	}
-	}
-}
-
-//nodeCurrent: current node, nodeStack: previous node, nodePrevious: previous node's nodeID, directionPrevious: previous node's exit direction, dist: distance between nodes
-static bool addNodePath(short int direction, short int nodeCurrent[DATA], short int nodeStack[DATA], short int nodePrevious, short int directionPrevious, short int dist)
-{
-	fprintf(stderr, "adding nodePrevious (%d) as path connected to nodeCurrent (%d) %d apart.\n", nodePrevious, nodeCurrent[NODEID], dist);
-	fflush(stderr);
-	if (nodeStack[NODEID] != nodePrevious) //verify nodePrevious is the same node as nodeStack passed to function. If nodePrevious was a deadend, it should result in this, preventing incorrect edits.
-	{
-		simLog("ERROR: nodeID missmatch.");
-		return false;
-	}
-	switch (directionPrevious) //record this node as a route available to nodePrevious from its last exit direction
-	{
-	case 0:
-		nodeStack[NODEID_T] = nodeCurrent[NODEID];
-		nodeStack[DIST_T] = dist;
-		break;
-	case 1:
-		nodeStack[NODEID_R] = nodeCurrent[NODEID];
-		nodeStack[DIST_R] = dist;
-		break;
-	case 2:
-		nodeStack[NODEID_B] = nodeCurrent[NODEID];
-		nodeStack[DIST_B] = dist;
-		break;
-	case 3:
-		nodeStack[NODEID_L] = nodeCurrent[NODEID];
-		nodeStack[DIST_L] = dist;
-		break;
-	}
-	switch (direction) //add new path to nodeCurrent
-	{
-	case 0: //facing up; it's down
-		nodeCurrent[NODEID_B] = nodePrevious;
-		nodeCurrent[DIST_B] = dist;
-		break;
-	case 1: //facing right; it's left
-		nodeCurrent[NODEID_L] = nodePrevious;
-		nodeCurrent[DIST_L] = dist;
-		break;
-	case 2: //facing down; it's up
-		nodeCurrent[NODEID_T] = nodePrevious;
-		nodeCurrent[DIST_T] = dist;
-		break;
-	case 3: //facing left; it's right
-		nodeCurrent[NODEID_R] = nodePrevious;
-		nodeCurrent[DIST_R] = dist;
-		break;
-	}
-	return true;
 }
