@@ -38,13 +38,13 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short 
 {
 	simLog("Calculating shortest path...");
 	//initialize data-set
-	for (int i = 0; i < NODES / 4; i++)
+	for (int i = 0; i < NODES / 2; i++)
 	{
 		pathList[i] = INFINITY;
 	}
 	short int nodeID = nodeNext;
 	short int reverseList[NODES / 2];
-	for (int i = 0; i < NODES / 4; i++)
+	for (int i = 0; i < NODES / 2; i++)
 		reverseList[i] = INFINITY;
 	fprintf(stderr, "\tset nodeID %d as root of pathList, nodeID %d should be last on list.\n", nodeID, nodeCurrent);
 	fflush(stderr);
@@ -132,7 +132,7 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short 
 	}
 
 	simLog("Optimal Path Generated:");
-	for (int i = 0; i < NODES / 4; i++)
+	for (int i = 0; i < NODES / 2; i++)
 	{
 		fprintf(stderr, "\t\t\tnodeID: %d\n", pathList[i]);
 		fflush(stderr);
@@ -141,7 +141,7 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short 
 
 static bool nodesExistAlt(short int list[NODES / 2], short int nodeID)
 {
-	for (int i = 0; i < NODES / 4; i++)
+	for (int i = 0; i < NODES / 2; i++)
 	{
 		if (list[i] == nodeID)
 			return true;
