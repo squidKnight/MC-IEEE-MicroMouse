@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 10/14/20
+Last modified: 10/15/20
 Purpose: generate a minimum spanning tree from a given node to all other nodes.
 Status: FINISHED, NOT TESTED
 */
@@ -9,16 +9,12 @@ Status: FINISHED, NOT TESTED
 #include <stdio.h>
 #include "API.h" //only needed for simulator use
 #include "mouseDefs.h"
+#include "nodeDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 
 static bool nodesExist(bool hold[NODES]);
-static short int node(short int nodeID);
-static short int node_T(short int nodeID);
-static short int node_R(short int nodeID);
-static short int node_B(short int nodeID);
-static short int node_L(short int nodeID);
 
 /*void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
 INPUTS: short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent
@@ -122,29 +118,4 @@ static bool nodesExist(bool hold[NODES])
 		}
 	}
 	return false;
-}
-
-static short int node(short int nodeID)
-{
-	return nodeID;
-}
-
-static short int node_T(short int nodeID)
-{
-	return nodeID + 16;
-}
-
-static short int node_R(short int nodeID)
-{
-	return nodeID + 1;
-}
-
-static short int node_B(short int nodeID)
-{
-	return nodeID - 16;
-}
-
-static short int node_L(short int nodeID)
-{
-	return nodeID - 1;
 }
