@@ -57,7 +57,7 @@ short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short
 		{
 			if (holdList[i] < minDist)
 			{
-				nodeNextID = node(i);
+				nodeNextID = node(i) + 1;
 				minDist = holdList[i];
 			}
 		}
@@ -69,7 +69,7 @@ short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short
 	}
 	else
 	{
-		fprintf(stderr, "nodeID %d selected as nodeNext", nodeNextID);
+		fprintf(stderr, "nodeID %d selected as nodeNext\n", nodeNextID);
 		fflush(stderr);
 	}
 
