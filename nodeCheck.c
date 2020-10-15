@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 10/14/20
+Last modified: 10/15/20
 Purpose: check to see if the current location is a node
 Status: FINISHED, NOT TESTED
 */
@@ -9,6 +9,7 @@ Status: FINISHED, NOT TESTED
 #include <stdbool.h>
 #include <stdio.h>
 #include "mouseDefs.h"
+#include "nodeDefs.h"
 
 /*bool nodeCheck(bool nodeCurrent[DATA])
 INPUTS: bool nodeCurrent[DATA]
@@ -27,4 +28,36 @@ bool nodeCheck(bool nodeCurrent[DATA])
 		return true;
 	else
 		return false;
+}
+
+/*short int node_(short int nodeCurrent)
+INPUTS: short int nodeCurrent
+	nodeCurrent: the position in the nodeList array of the refernce node
+RETURNS: short int nodeCurrent
+	nodeCurrent: performs translation to identify an adjacent node
+NOTES:
+	nodeID can be found by adding 1 to the output of any of this set of functions.
+	nodeCurrent can be found by subtracting 1 from the nodeID of the node input into any of this set of functions.
+CAUTION:
+		Additional +/- 1 operation may be needed if nodeID is required and not the position in the array of the node.
+*/
+short int node(short int nodeCurrent)
+{
+	return nodeCurrent;
+}
+short int node_T(short int nodeCurrent)
+{
+	return nodeCurrent + 16;
+}
+short int node_R(short int nodeCurrent)
+{
+	return nodeCurrent + 1;
+}
+short int node_B(short int nodeCurrent)
+{
+	return nodeCurrent - 16;
+}
+short int node_L(short int nodeCurrent)
+{
+	return nodeCurrent - 1;
 }
