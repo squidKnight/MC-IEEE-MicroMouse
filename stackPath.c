@@ -42,49 +42,58 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short 
 	{
 		pathList[i] = INFINITY;
 	}
-
-	//calculate backpath from nextNode to nodeCurrent
 	short int nodeID = nodeNext;
 	short int reverseList[NODES / 8];
 	for (int i = 0; i < NODES / 8; i++)
 		reverseList[i] = INFINITY;
+	fprintf(stderr, "\tset nodeID %d as root of pathList, nodeID %d should be last on list.\n", nodeID, nodeCurrent);
+	fflush(stderr);
 	reverseList[0] = nodeID;
 	short int x = 0;
+
+	//calculate backpath from nextNode to nodeCurrent
 	simLog("Generating Path...");
 	while (nodeID != nodeCurrent)
 	{
 		short int minDist = INFINITY;
-		short int vert = nodeID - 1;
+		short int vert = node(nodeID - 1);
 		if (!nodeCheck(nodeList[vert]))
+		{
+			simLog("CRITICAL ERROR: expected a node to exist, but it hasn't been visited yet.");
 			return;
+		}
+
 		short int stick = node_T(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_T] && !nodesExistAlt(reverseList, stick + 1))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_R(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_R] && !nodesExistAlt(reverseList, stick + 1))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_B(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_B] && !nodesExistAlt(reverseList, stick + 1))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_L(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_L] && !nodesExistAlt(reverseList, stick + 1))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 
+		fprintf(stderr, "\tadding nodeID %d to list...\n", nodeID);
+		fflush(stderr);
 		if (nodesExistAlt(reverseList, nodeID))
 			simLog("CRITICAL ERROR: node already on list, loop may occur.");
-		reverseList[++x] = nodeID;
+		else
+			reverseList[++x] = nodeID;
 	}
 	for (int i = 0; i < NODES; i++)
 	{
