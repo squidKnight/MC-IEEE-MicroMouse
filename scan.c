@@ -9,12 +9,12 @@ Status: FINISHED, NOT TESTED
 #include <stdio.h>
 #include "API.h" //only needed for simulator use
 #include "mouseDefs.h"
+#include "nodeDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
-bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]);
 
 /*void scan(bool nodeList[NODES][DATA], short int position[2], short int direction)
@@ -89,158 +89,229 @@ short int scan(bool nodeList[NODES][DATA], short int position[2], short int dire
 			break;
 		}
 		
-		if (nodeCheck(nodeList[nodeID - 1])) //node already visited
-		{
-
-			//Choose next available route, not previously traveled if possible
-			if (!nodeList[nodeID - 1][ef] && !nodeList[nodeID - 1][el] && !nodeList[nodeID - 1][er]) //if no unexplored directions
-			{
-				simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
-
-				//Verify that there are still explorable nodes in the nodeList array
-				short int san = 0;
-				for (int i = 0; i < NODES; i++)
-				{
-					if (nodeList[i][EXP_T] || nodeList[i][EXP_R] || nodeList[i][EXP_B] || nodeList[i][EXP_L])
-					{
-						break;
-					}
-					san = i;
-				}
-				if (san == NODES - 1)
-				{
-					simLog("All nodes have been fully explored.\n\t\tENDING SCAN");
-					return direction;
-				}
-				else
-				{
-					fprintf(stderr, "%d\n", san);
-					fflush(stderr);
-				}
-
-				//travel to next nearest not fully explored node
-				direction = pathChooseAlt(nodeList, nodeID, direction, position);
-				//reorient directions
-				nodeID = getID(position);
-				switch (direction)
-				{
-				case 0:
-					wf = WAL_T;
-					wr = WAL_R;
-					wb = WAL_B;
-					wl = WAL_L;
-					ef = EXP_T;
-					er = EXP_R;
-					eb = EXP_B;
-					el = EXP_L;
-					break;
-				case 1:
-					wf = WAL_R;
-					wr = WAL_B;
-					wb = WAL_L;
-					wl = WAL_T;
-					ef = EXP_R;
-					er = EXP_B;
-					eb = EXP_L;
-					el = EXP_T;
-					break;
-				case 2:
-					wf = WAL_B;
-					wr = WAL_L;
-					wb = WAL_T;
-					wl = WAL_R;
-					ef = EXP_B;
-					er = EXP_L;
-					eb = EXP_T;
-					el = EXP_R;
-					break;
-				case 3:
-					wf = WAL_L;
-					wr = WAL_T;
-					wb = WAL_R;
-					wl = WAL_B;
-					ef = EXP_L;
-					er = EXP_T;
-					eb = EXP_R;
-					el = EXP_B;
-					break;
-				}
-			}
-			
-			//choose path
-			if (!API_wallFront() && nodeList[nodeID - 1][ef])
-			{
-				direction = updateDir(direction, 0);
-				nodeList[nodeID - 1][ef] = false;
-			}
-			else if (!API_wallLeft() && nodeList[nodeID - 1][el])
-			{
-				API_turnLeft();
-				direction = updateDir(direction, 3);
-				nodeList[nodeID - 1][el] = false;
-			}
-			else if (!API_wallRight() && nodeList[nodeID - 1][er])
-			{
-				API_turnRight();
-				direction = updateDir(direction, 1);
-				nodeList[nodeID - 1][er] = false;
-			}
-			else
-			{
-				simLog("\tERROR: expected node class to not be DEADEND");
-				API_turnRight();
-				API_turnRight();
-				direction = updateDir(direction, 2);
-			}
-
-		}
-		else //new node
+		
+		if (!nodeCheck(nodeList[node(nodeID - 1)])) //new node
 		{
 			simLog("recording new node...");
 
 			//create node
 			if (!API_wallFront()) //is front a path?
 			{
-				nodeList[nodeID - 1][wf] = true;
-				nodeList[nodeID - 1][ef] = true;
+				switch (direction)
+				{
+				case 0:
+					nodeList[node(nodeID - 1)][WAL_T] = true;
+					if (!nodeCheck(nodeList[node_T(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_T] = true;
+					else
+						nodeList[node_T(nodeID - 1)][EXP_B] = false;
+					break;
+				case 1:
+					nodeList[node(nodeID - 1)][WAL_R] = true;
+					if (!nodeCheck(nodeList[node_R(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_R] = true;
+					else
+						nodeList[node_R(nodeID - 1)][EXP_L] = false;
+					break;
+				case 2:
+					nodeList[node(nodeID - 1)][WAL_B] = true;
+					if (!nodeCheck(nodeList[node_B(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_B] = true;
+					else
+						nodeList[node_B(nodeID - 1)][EXP_T] = false;
+					break;
+				case 3:
+					nodeList[node(nodeID - 1)][WAL_L] = true;
+					if (!nodeCheck(nodeList[node_L(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_L] = true;
+					else
+						nodeList[node_L(nodeID - 1)][EXP_R] = false;
+					break;
+				}
 			}
 			if (!API_wallRight()) //is right a path?
 			{
-				nodeList[nodeID - 1][wr] = true;
-				nodeList[nodeID - 1][er] = true;
+				switch (direction)
+				{
+				case 0:
+					nodeList[node(nodeID - 1)][WAL_R] = true;
+					if (!nodeCheck(nodeList[node_R(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_R] = true;
+					else
+						nodeList[node_R(nodeID - 1)][EXP_L] = false;
+					break;
+				case 1:
+					nodeList[node(nodeID - 1)][WAL_B] = true;
+					if (!nodeCheck(nodeList[node_B(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_B] = true;
+					else
+						nodeList[node_B(nodeID - 1)][EXP_T] = false;
+					break;
+				case 2:
+					nodeList[node(nodeID - 1)][WAL_L] = true;
+					if (!nodeCheck(nodeList[node_L(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_L] = true;
+					else
+						nodeList[node_L(nodeID - 1)][EXP_R] = false;
+					break;
+				case 3:
+					nodeList[node(nodeID - 1)][WAL_T] = true;
+					if (!nodeCheck(nodeList[node_T(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_T] = true;
+					else
+						nodeList[node_T(nodeID - 1)][EXP_B] = false;
+					break;
+				}
 			}
-			nodeList[nodeID - 1][wb] = true; //back is not a wall
+			switch (direction) //back is not a wall
+			{
+			case 0:
+				nodeList[node(nodeID - 1)][WAL_B] = true;
+				break;
+			case 1:
+				nodeList[node(nodeID - 1)][WAL_L] = true;
+				break;
+			case 2:
+				nodeList[node(nodeID - 1)][WAL_T] = true;
+				break;
+			case 3:
+				nodeList[node(nodeID - 1)][WAL_R] = true;
+				break;
+			}
 			if (!API_wallLeft()) //is left a path?
 			{
-				nodeList[nodeID - 1][wl] = true;
-				nodeList[nodeID - 1][el] = true;
+				switch (direction)
+				{
+				case 0:
+					nodeList[node(nodeID - 1)][WAL_L] = true;
+					if (!nodeCheck(nodeList[node_L(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_L] = true;
+					else
+						nodeList[node_L(nodeID - 1)][EXP_R] = false;
+					break;
+				case 1:
+					nodeList[node(nodeID - 1)][WAL_T] = true;
+					if (!nodeCheck(nodeList[node_T(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_T] = true;
+					else
+						nodeList[node_T(nodeID - 1)][EXP_B] = false;
+					break;
+				case 2:
+					nodeList[node(nodeID - 1)][WAL_R] = true;
+					if (!nodeCheck(nodeList[node_R(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_R] = true;
+					else
+						nodeList[node_R(nodeID - 1)][EXP_L] = false;
+					break;
+				case 3:
+					nodeList[node(nodeID - 1)][WAL_B] = true;
+					if (!nodeCheck(nodeList[node_B(nodeID - 1)]))
+						nodeList[node(nodeID - 1)][EXP_B] = true;
+					else
+						nodeList[node_B(nodeID - 1)][EXP_T] = false;
+					break;
+				}
 			}
+		}
+		//Choose next available route, not previously traveled if possible
+		if (!nodeList[node(nodeID - 1)][ef] && !nodeList[node(nodeID - 1)][el] && !nodeList[node(nodeID - 1)][er]) //if no unexplored directions
+		{
+			simLog("Current node has no unexplored paths, searching for nearest node with unexplored paths...");
 
-			//choose path
-			if (!API_wallFront())
+			//Verify that there are still explorable nodes in the nodeList array
+			short int san = 0;
+			for (int i = 0; i < NODES; i++)
 			{
-				direction = updateDir(direction, 0);
-				nodeList[nodeID - 1][ef] = false;
+				if (nodeList[i][EXP_T] || nodeList[i][EXP_R] || nodeList[i][EXP_B] || nodeList[i][EXP_L])
+				{
+					break;
+				}
+				san = i;
 			}
-			else if (!API_wallLeft())
+			if (san == NODES - 1)
 			{
-				API_turnLeft();
-				direction = updateDir(direction, 3);
-				nodeList[nodeID - 1][el] = false;
-			}
-			else if (!API_wallRight())
-			{
-				API_turnRight();
-				direction = updateDir(direction, 1);
-				nodeList[nodeID - 1][er] = false;
+				simLog("All nodes have been fully explored.\n\t\tENDING SCAN");
+				return direction;
 			}
 			else
 			{
-				simLog("\tERROR: expected node class to not be DEADEND");
-				API_turnRight();
-				API_turnRight();
-				direction = updateDir(direction, 2);
+				fprintf(stderr, "%d\n", san);
+				fflush(stderr);
 			}
+
+			//travel to next nearest not fully explored node
+			direction = pathChooseAlt(nodeList, nodeID, direction, position);
+			//reorient directions
+			nodeID = getID(position);
+			switch (direction)
+			{
+			case 0:
+				wf = WAL_T;
+				wr = WAL_R;
+				wb = WAL_B;
+				wl = WAL_L;
+				ef = EXP_T;
+				er = EXP_R;
+				eb = EXP_B;
+				el = EXP_L;
+				break;
+			case 1:
+				wf = WAL_R;
+				wr = WAL_B;
+				wb = WAL_L;
+				wl = WAL_T;
+				ef = EXP_R;
+				er = EXP_B;
+				eb = EXP_L;
+				el = EXP_T;
+				break;
+			case 2:
+				wf = WAL_B;
+				wr = WAL_L;
+				wb = WAL_T;
+				wl = WAL_R;
+				ef = EXP_B;
+				er = EXP_L;
+				eb = EXP_T;
+				el = EXP_R;
+				break;
+			case 3:
+				wf = WAL_L;
+				wr = WAL_T;
+				wb = WAL_R;
+				wl = WAL_B;
+				ef = EXP_L;
+				er = EXP_T;
+				eb = EXP_R;
+				el = EXP_B;
+				break;
+			}
+		}
+
+		//choose path
+		if (!API_wallFront() && nodeList[node(nodeID - 1)][ef])
+		{
+			direction = updateDir(direction, 0);
+			nodeList[node(nodeID - 1)][ef] = false;
+		}
+		else if (!API_wallLeft() && nodeList[node(nodeID - 1)][el])
+		{
+			API_turnLeft();
+			direction = updateDir(direction, 3);
+			nodeList[node(nodeID - 1)][el] = false;
+		}
+		else if (!API_wallRight() && nodeList[node(nodeID - 1)][er])
+		{
+			API_turnRight();
+			direction = updateDir(direction, 1);
+			nodeList[node(nodeID - 1)][er] = false;
+		}
+		else
+		{
+			simLog("\tERROR: expected node class to not be DEADEND");
+			API_turnRight();
+			API_turnRight();
+			direction = updateDir(direction, 2);
 		}
 
 		//Move beyond current node
