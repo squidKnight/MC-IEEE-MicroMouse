@@ -12,7 +12,6 @@ Status: FINISHED, NOT TESTED
 #include "nodeDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 
 static bool nodesExist(bool hold[NODES]);
 
