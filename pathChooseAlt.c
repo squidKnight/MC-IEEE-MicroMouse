@@ -21,7 +21,7 @@ short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short i
 /*short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
 INPUTS: bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
 	nodeList: the nodeList array.
-	nodeCurrent: rank of the current node on the stack that the micromouse is at and must choose the next path for.
+	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must choose the next path for.
 	direction: the current direction of the micromouse in relation to its original orientation.
 	position: the current position of the micromouse. Implemented for use with the position array in scan.c
 RETURNS: short int direction, short int position[2], bool nodeList[NODES][DATA]
@@ -43,9 +43,13 @@ CAUTION:
 short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2])
 {
 	simLog("Searching for unexplored path along backpath...");
-	short int nodeID = node(nodeCurrent);
 
-	nodeID = getID(position);
+	short int nodeID = getID(position);
+	if (nodeCurrent != nodeID)
+	{
+		simLog("FATAL ERROR: nodeID missmatch.");
+		return direction;
+	}
 	//find next node not fully explored
 	short int nodeNextID = nodeID;
 	short int holdList[NODES];
@@ -76,7 +80,7 @@ short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short
 	//calculate route from nodeNext to start
 	simLog("calculating route from nodeNext to current node...");
 	short int pathList[NODES / 8];
-	stackPath(nodeList, pathList, holdList, node(nodeCurrent) + 1, nodeNextID);
+	stackPath(nodeList, pathList, holdList, nodeCurrent, nodeNextID);
 
 	//traverse maze along chosen path to nodeNext
 	return rtb(nodeList, pathList, position, direction, nodeNextID);
