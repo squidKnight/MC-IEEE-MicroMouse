@@ -1,34 +1,31 @@
 /*
 Written by Mathazzar
-Last modified: 10/06/20
+Last modified: 10/15/20
 Purpose: choose next not fully explored node and travel to it.
 Status: UNFINISHED, NOT TESTED
 */
 
 #include "API.h"
 #include <stdio.h>
-#include <stdbool.h>
 #include "mouseDefs.h"
+#include "nodeDefs.h"
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
-short int stackCheck(short int nodeList[NODES][DATA], short int nodeCurrent); //find rank of nodeCurrent if it exists in nodeList
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
-short int pathCheck(short int position[2], short int *dire); //Move's micromouse to the next node
-void updatePos(short int position[2], short int direction, short int dist); //updates the position of the micromouse
 short int changeDir(short int direction, short int newDirection); //changes the dirction the micromouse to a specific desired direction
-void stackPath(short int nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
-void pathTree(short int nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);  //generates minimum spanning tree from nodeCurrent
-short int directionNext(short int nodeCurrent[DATA], short int nodeNext); //identifies the direction of the current node's backpath to prevent longer path to the next node being taken
+void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
+void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);  //generates minimum spanning tree from nodeCurrent
+short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext);
 
-/*short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
-INPUTS: short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
+/*short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
+INPUTS: bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
 	nodeList: the nodeList array.
 	nodeCurrent: rank of the current node on the stack that the micromouse is at and must choose the next path for.
 	direction: the current direction of the micromouse in relation to its original orientation.
 	position: the current position of the micromouse. Implemented for use with the position array in scan.c
-RETURNS: short int dire, short int nodeList[NODES][DATA]
-	dire: a new variable for the new direction, which is returned.
+RETURNS: short int direction, short int position[2], bool nodeList[NODES][DATA]
+	direction: the new direction as decided by rtb(), which is returned.
 	position: updates the position directly.
 	nodeList: updates the explored directions directly.
 NOTES:
@@ -41,14 +38,12 @@ NOTES:
 	Currently assumes that any backpath possible will always be less than NODES/8(~32) long.
 CAUTION:
 	Manipulates the nodeList array passed to it directly.
-	Manipulates the position array passed to it directly via updatePos().
+	Manipulates the position array passed to it directly via rtb().
 */
-short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2])
+short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2])
 {
-	short int dire = direction;
-
 	simLog("Searching for unexplored path along backpath...");
-	short int nodeID = nodeList[nodeCurrent][NODEID];
+	short int nodeID = node(nodeCurrent);
 
 	nodeID = getID(position);
 	//find next node not fully explored
@@ -58,11 +53,11 @@ short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent, 
 	short int minDist = INFINITY;
 	for (int i = 0; i < NODES; i++)
 	{
-		if ((nodeList[i][NODEID_T] == 0) || (nodeList[i][NODEID_R] == 0) || (nodeList[i][NODEID_B] == 0) || (nodeList[i][NODEID_L] == 0))
+		if (nodeList[i][EXP_T] || nodeList[i][EXP_R] || nodeList[i][EXP_B] || nodeList[i][EXP_L])
 		{
 			if (holdList[i] < minDist)
 			{
-				nodeNextID = nodeList[i][NODEID];
+				nodeNextID = node(i);
 				minDist = holdList[i];
 			}
 		}
@@ -70,52 +65,14 @@ short int pathChooseAlt(short int nodeList[NODES][DATA], short int nodeCurrent, 
 	if (minDist == INFINITY)
 	{
 		simLog("CRITICAL ERROR: no nodes found with an unexplored route shorter than INFINITY.");
-		return dire;
+		return direction;
 	}
 
 	//calculate route from nodeNext to start
 	simLog("calculating route from nodeNext to current node...");
 	short int pathList[NODES / 8];
-	stackPath(nodeList, pathList, holdList, nodeList[nodeCurrent][NODEID], nodeNextID);
+	stackPath(nodeList, pathList, holdList, node(nodeCurrent) + 1, nodeNextID);
 
 	//traverse maze along chosen path to nodeNext
-	short int x = 0;
-	while (nodeID != nodeNextID)
-	{
-		if (pathList[x] == INFINITY)
-		{
-			fprintf(stderr, "CRITICAL ERROR: nodes in stack exceeded: %d.", x);
-			fflush(stderr);
-			break;
-		}
-		else if (nodeID != pathList[x])
-		{
-			simLog("CRITICAL ERROR: expected route not taken.");
-			break;
-		}
-
-		dire = changeDir(dire, directionNext(nodeList[nodeCurrent], pathList[++x]));
-		if (dire == -1)
-		{
-			simLog("CRITICAL ERROR: backpath not among available routes.");
-			return dire;
-		}
-
-		if (!API_wallFront())
-		{
-			API_moveForward();
-			updatePos(position, dire, 1);
-			pathCheck(position, &dire);
-
-			nodeID = getID(position);
-			nodeCurrent = stackCheck(nodeList, nodeID);
-		}
-		else
-		{
-			simLog("CRITICAL ERROR: didn't expect a wall.");
-			break;
-		}
-	}
-
-	return dire;
+	return rtb(nodeList, pathList, position, direction, nodeNextID);
 }
