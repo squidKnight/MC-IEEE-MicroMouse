@@ -21,7 +21,7 @@ INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int hol
 	pathList: blank array to be filled by stackPath() listing the order of each node to travel to from nodeCurrent to nodeNext.
 	holdList: lists the distances of each node from nodeCurrent. Minimum Spanning Tree.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
-	nodeNext: the next node to be traveled to.
+	nodeNext: nodeID of the next node to be traveled to.
 RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
 	nodeList: should return unmodified.
 	pathList: directly modified by stackPath(), lists the order of nodes to take to get from nodeCurrent to nodeNext.
