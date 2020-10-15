@@ -16,14 +16,14 @@ void updatePos(short int position[2], short int direction, short int dist); //up
 
 static short int directionNext(bool nodeCurrent[DATA], short int rank, short int pathNext);
 
-/*short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int direction, short int nodeNext)
-INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int direction, short int nodeNext
+/*short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short int position[2], short int direction, short int nodeNext)
+INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 2], short int position[2], short int direction, short int nodeNext
 	nodeList: the nodeList array.
 	pathList: the pathList array.
 	position: the position array.
 	direction: the current orientation of the micromouse.
 	nodeNext: nodeID of the desired endpoint.
-RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int dire
+RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 2], short int position[2], short int dire
 	nodeList: should return unmodified.
 	pathList: should return unmodified.
 	position: modifies the position array directly.
@@ -38,7 +38,7 @@ CAUTION:
 	Interacts with the pathList array directly.
 	Manipulates the position array directly via updatePos().
 */
-short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int direction, short int nodeNext)
+short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short int position[2], short int direction, short int nodeNext)
 {
 
 	simLog("Returning to base...");
