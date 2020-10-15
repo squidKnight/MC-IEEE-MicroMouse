@@ -6,6 +6,7 @@ Status: FINISHED, NOT TESTED
 Notes: functions currently declared in nodeCheck.c
 */
 
+bool nodeCheck(bool nodeCurrent[DATA]); //checks to see if the current location is a node
 short int node(short int nodeID);
 short int node_T(short int nodeID);
 short int node_R(short int nodeID);
