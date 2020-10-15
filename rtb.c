@@ -81,7 +81,7 @@ short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short i
 			updatePos(position, dire, 1);
 
 			nodeID = getID(position);
-			nodeCurrent = stackCheck(nodeList, nodeID);
+			nodeCurrent = node(nodeID - 1);
 		}
 		else
 		{
