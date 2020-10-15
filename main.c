@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 10/14/20
+Last modified: 10/15/20
 Purpose: run the program on the simulator, which requires a main.c
 
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
@@ -16,9 +16,9 @@ void simLog(char* text); //modified from main.c in mms example (https://github.c
 void nodeInit(bool nodeList[NODES][DATA]); //initialize nodeList
 short int scan(bool nodeList[NODES][DATA], short int position[2], short int direction); //scans the maze
 void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent); //generates minimum spanning tree from nodeCurrent
-void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
+void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
-short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext); //moves the micromouse to nodeNext from anywhere in the maze
+short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int direction, short int nodeNext); //moves the micromouse to nodeNext from anywhere in the maze
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 
 int main()
@@ -36,10 +36,11 @@ int main()
 	}
 
 	//return to start
+	simLog("Going back to start...");
 	short int holdList[NODES];
 	short int nodeCurrent = getID(position);
 	pathTree(nodeList, holdList, nodeCurrent);
-	short int pathList[NODES / 8];
+	short int pathList[NODES / 4];
 	stackPath(nodeList, pathList, holdList, nodeCurrent, 1);
 	direction = rtb(nodeList, pathList, position, direction, 1);
 	while (API_wallFront())
