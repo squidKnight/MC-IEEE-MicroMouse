@@ -67,6 +67,11 @@ short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short
 		simLog("CRITICAL ERROR: no nodes found with an unexplored route shorter than INFINITY.");
 		return direction;
 	}
+	else
+	{
+		fprintf(stderr, "nodeID %d selected as nodeNext", nodeNextID);
+		fflush(stderr);
+	}
 
 	//calculate route from nodeNext to start
 	simLog("calculating route from nodeNext to current node...");
