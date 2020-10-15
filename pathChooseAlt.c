@@ -14,9 +14,9 @@ void simLog(char* text); //modified from main.c in mms example (https://github.c
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
 short int changeDir(short int direction, short int newDirection); //changes the dirction the micromouse to a specific desired direction
-void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
+void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext); //finds shortest path to a given node from a given node using a minimum spanning tree
 void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent);  //generates minimum spanning tree from nodeCurrent
-short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int position[2], short int direction, short int nodeNext);
+short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int position[2], short int direction, short int nodeNext);
 
 /*short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent,short int direction, short int position[2])
 INPUTS: bool nodeList[NODES][DATA], short int nodeCurrent, short int direction, short int position[2]
@@ -79,7 +79,7 @@ short int pathChooseAlt(bool nodeList[NODES][DATA], short int nodeCurrent, short
 
 	//calculate route from nodeNext to start
 	simLog("calculating route from nodeNext to current node...");
-	short int pathList[NODES / 8];
+	short int pathList[NODES / 4];
 	stackPath(nodeList, pathList, holdList, nodeCurrent, nodeNextID);
 
 	//traverse maze along chosen path to nodeNext
