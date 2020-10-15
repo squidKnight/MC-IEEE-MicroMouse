@@ -56,22 +56,22 @@ int main()
 	if (holdList[119] < minDist) //check distance to nodeID 120 (bottom left center)
 	{
 		minDist = holdList[119];
-		nodeCurrent = 119; //reuse nodeCurrent as nodeNext
+		nodeCurrent = 120; //reuse nodeCurrent as nodeNext
 	}
 	if (holdList[120] < minDist) //check distance to nodeID 121 (bottom right center)
 	{
 		minDist = holdList[120];
-		nodeCurrent = 120; //reuse nodeCurrent as nodeNext
+		nodeCurrent = 121; //reuse nodeCurrent as nodeNext
 	}
 	if (holdList[135] < minDist) //check distance to nodeID 136 (top left center)
 	{
 		minDist = holdList[135];
-		nodeCurrent = 135; //reuse nodeCurrent as nodeNext
+		nodeCurrent = 136; //reuse nodeCurrent as nodeNext
 	}
 	if (holdList[136] < minDist) //check distance to nodeID 137 (top right center)
 	{
 		minDist = holdList[136];
-		nodeCurrent = 136; //reuse nodeCurrent as nodeNext
+		nodeCurrent = 137; //reuse nodeCurrent as nodeNext
 	}
 	if (minDist == INFINITY)
 		simLog("FATAL ERROR: center was not found.");
