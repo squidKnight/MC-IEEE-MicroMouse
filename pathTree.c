@@ -46,7 +46,7 @@ void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int n
 		else
 			hold[i] = true;
 	}
-	if (!nodeCheck(nodeCurrent - 1))
+	if (!nodeCheck(nodeList[nodeCurrent - 1]))
 	{
 		simLog("CRITICAL ERROR: nodeCurrent can't be found on stack.");
 		return;
@@ -82,19 +82,19 @@ void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int n
 		//calculated distances for adjacent nodes
 		simLog("top");
 		short int stackCurrent = node_T(minStack); //check top
-		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_T] && nodeList[stackCurrent][WAL_B]))
+		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_T] && nodeList[stackCurrent][WAL_B]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("right");
 		stackCurrent = node_R(minStack); //check right
-		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_R] && nodeList[stackCurrent][WAL_L]))
+		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_R] && nodeList[stackCurrent][WAL_L]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("bottom");
 		stackCurrent = node_B(minStack); //check bottom
-		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_B] && nodeList[stackCurrent][WAL_T]))
+		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_B] && nodeList[stackCurrent][WAL_T]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
 		simLog("left");
 		stackCurrent = node_L(minStack); //check left
-		if (nodeCheck(stackCurrent) && !hold[stackCurrent] && (nodeList[minStack][WAL_L] && nodeList[stackCurrent][WAL_R]))
+		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_L] && nodeList[stackCurrent][WAL_R]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
 	}
 	simLog("Minimum Spanning Tree Generated:");
