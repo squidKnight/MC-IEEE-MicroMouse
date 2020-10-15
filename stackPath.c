@@ -55,28 +55,28 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short 
 	{
 		short int minDist = INFINITY;
 		short int vert = nodeID - 1;
-		if (!nodeCheck(vert))
+		if (!nodeCheck(nodeList[vert]))
 			return;
 		short int stick = node_T(vert);
-		if (nodeCheck(stick) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_R(vert);
-		if (nodeCheck(stick) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_B(vert);
-		if (nodeCheck(stick) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
 		}
 		stick = node_L(vert);
-		if (nodeCheck(stick) && (holdList[stick] < minDist))
+		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist))
 		{
 			minDist = holdList[stick];
 			nodeID = stick + 1;
