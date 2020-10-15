@@ -62,38 +62,67 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short 
 			simLog("CRITICAL ERROR: expected a node to exist, but it hasn't been visited yet.");
 			return;
 		}
+		fprintf(stderr, "\tpaths out of nodeID %d: ", nodeID);
+		fflush(stderr);
 
 		short int stick = node_T(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_T] && !nodesExistAlt(reverseList, stick + 1))
+		if (stick > -1 && stick < 256)
 		{
-			minDist = holdList[stick];
-			nodeID = stick + 1;
+			fprintf(stderr, "%d(%d), ", stick + 1, holdList[stick]);
+			fflush(stderr);
+			if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_T] && !nodesExistAlt(reverseList, stick + 1))
+			{
+				minDist = holdList[stick];
+				nodeID = stick + 1;
+			}
 		}
+		else
+			simLog("ERROR: nodeID is out of bounds.");
 		stick = node_R(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_R] && !nodesExistAlt(reverseList, stick + 1))
+		if (stick > -1 && stick < 256)
 		{
-			minDist = holdList[stick];
-			nodeID = stick + 1;
+			fprintf(stderr, "%d(%d), ", stick + 1, holdList[stick]);
+			fflush(stderr);
+			if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_R] && !nodesExistAlt(reverseList, stick + 1))
+			{
+				minDist = holdList[stick];
+				nodeID = stick + 1;
+			}
 		}
+		else
+			simLog("ERROR: nodeID is out of bounds.");
 		stick = node_B(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_B] && !nodesExistAlt(reverseList, stick + 1))
+		if (stick > -1 && stick < 256)
 		{
-			minDist = holdList[stick];
-			nodeID = stick + 1;
+			fprintf(stderr, "%d(%d), ", stick + 1, holdList[stick]);
+			fflush(stderr);
+			if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_B] && !nodesExistAlt(reverseList, stick + 1))
+			{
+				minDist = holdList[stick];
+				nodeID = stick + 1;
+			}
 		}
+		else
+			simLog("ERROR: nodeID is out of bounds.");
 		stick = node_L(vert);
-		if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_L] && !nodesExistAlt(reverseList, stick + 1))
+		if (stick > -1 && stick < 256)
 		{
-			minDist = holdList[stick];
-			nodeID = stick + 1;
+			fprintf(stderr, "%d(%d)\n", stick + 1, holdList[stick]);
+			fflush(stderr);
+			if (nodeCheck(nodeList[stick]) && (holdList[stick] < minDist) && nodeList[vert][WAL_L] && !nodesExistAlt(reverseList, stick + 1))
+			{
+				minDist = holdList[stick];
+				nodeID = stick + 1;
+			}
 		}
+		else
+			simLog("ERROR: nodeID is out of bounds.");
 
 		fprintf(stderr, "\tadding nodeID %d to list...\n", nodeID);
 		fflush(stderr);
 		if (nodesExistAlt(reverseList, nodeID))
 			simLog("CRITICAL ERROR: node already on list, loop may occur.");
-		else
-			reverseList[++x] = nodeID;
+		reverseList[++x] = nodeID;
 	}
 	for (int i = 0; i < NODES; i++)
 	{
