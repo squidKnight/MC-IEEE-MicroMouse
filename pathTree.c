@@ -80,22 +80,30 @@ void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int n
 		fflush(stderr);
 
 		//calculated distances for adjacent nodes
-		simLog("top");
+		simLog("\ttop");
 		short int stackCurrent = node_T(minStack); //check top
 		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_T] && nodeList[stackCurrent][WAL_B]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
-		simLog("right");
+		else
+			simLog("\t\tnope");
+		simLog("\tright");
 		stackCurrent = node_R(minStack); //check right
 		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_R] && nodeList[stackCurrent][WAL_L]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
-		simLog("bottom");
+		else
+			simLog("\t\tnope");
+		simLog("\tbottom");
 		stackCurrent = node_B(minStack); //check bottom
 		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_B] && nodeList[stackCurrent][WAL_T]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
-		simLog("left");
+		else
+			simLog("\t\tnope");
+		simLog("\tleft");
 		stackCurrent = node_L(minStack); //check left
 		if (nodeCheck(nodeList[stackCurrent]) && !hold[stackCurrent] && (nodeList[minStack][WAL_L] && nodeList[stackCurrent][WAL_R]))
 			holdList[stackCurrent] = holdList[minStack] + 1;
+		else
+			simLog("\t\tnope");
 	}
 	simLog("Minimum Spanning Tree Generated:");
 	for (int i = 0; i < NODES; i++)
