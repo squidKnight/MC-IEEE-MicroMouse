@@ -13,38 +13,38 @@ Status: FINISHED, NOT TESTED
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
-static bool nodesExistAlt(short int list[NODES / 8], short int nodeID);
+static bool nodesExistAlt(short int list[NODES / 4], short int nodeID);
 
-/*void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
-INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext
+/*void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
+INPUTS: bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext
 	nodeList: the nodeList array.
 	pathList: blank array to be filled by stackPath() listing the order of each node to travel to from nodeCurrent to nodeNext.
 	holdList: lists the distances of each node from nodeCurrent. Minimum Spanning Tree.
 	nodeCurrent: nodeID of the current node on the stack that the micromouse is at and must calculate the minimum spanning tree for.
 	nodeNext: nodeID of the next node to be traveled to.
-RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES]
+RETURNS: bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES]
 	nodeList: should return unmodified.
 	pathList: directly modified by stackPath(), lists the order of nodes to take to get from nodeCurrent to nodeNext.
 	holdList: should return unmodified.
 NOTES:
 	Implemented to have pathList and holdList arrays created externally beforehand, and assumes them to be blank and initializes them.
-	Currently assumes that any path possible will be less than NODES/8(~32) long.
+	Currently assumes that any path possible will be less than NODES/4(~64) long.
 CAUTION:
 	Interacts with the nodeList array passed to it directly.
 	Interacts with the holdList array passed to it directly.
 	Manipulates the pathList array passed to it directly.
 */
-void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
+void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 4], short int holdList[NODES], short int nodeCurrent, short int nodeNext)
 {
 	simLog("Calculating shortest path...");
 	//initialize data-set
-	for (int i = 0; i < NODES / 8; i++)
+	for (int i = 0; i < NODES / 4; i++)
 	{
 		pathList[i] = INFINITY;
 	}
 	short int nodeID = nodeNext;
-	short int reverseList[NODES / 8];
-	for (int i = 0; i < NODES / 8; i++)
+	short int reverseList[NODES / 4];
+	for (int i = 0; i < NODES / 4; i++)
 		reverseList[i] = INFINITY;
 	fprintf(stderr, "\tset nodeID %d as root of pathList, nodeID %d should be last on list.\n", nodeID, nodeCurrent);
 	fflush(stderr);
@@ -103,16 +103,16 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 8], short 
 	}
 
 	simLog("Optimal Path Generated:");
-	for (int i = 0; i < NODES / 8; i++)
+	for (int i = 0; i < NODES / 4; i++)
 	{
 		fprintf(stderr, "\t\t\tnodeID: %d\n", pathList[i]);
 		fflush(stderr);
 	}
 }
 
-static bool nodesExistAlt(short int list[NODES / 8], short int nodeID)
+static bool nodesExistAlt(short int list[NODES / 4], short int nodeID)
 {
-	for (int i = 0; i < NODES / 8; i++)
+	for (int i = 0; i < NODES / 4; i++)
 	{
 		if (list[i] == nodeID)
 			return true;
