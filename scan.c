@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 10/14/20
+Last modified: 10/15/20
 Purpose: scan the maze.
 Status: FINISHED, NOT TESTED
 */
@@ -120,35 +120,77 @@ short int scan(bool nodeList[NODES][DATA], short int position[2], short int dire
 
 				//travel to next nearest not fully explored node
 				direction = pathChooseAlt(nodeList, nodeID, direction, position);
+				//reorient directions
 				nodeID = getID(position);
+				switch (direction)
+				{
+				case 0:
+					wf = WAL_T;
+					wr = WAL_R;
+					wb = WAL_B;
+					wl = WAL_L;
+					ef = EXP_T;
+					er = EXP_R;
+					eb = EXP_B;
+					el = EXP_L;
+					break;
+				case 1:
+					wf = WAL_R;
+					wr = WAL_B;
+					wb = WAL_L;
+					wl = WAL_T;
+					ef = EXP_R;
+					er = EXP_B;
+					eb = EXP_L;
+					el = EXP_T;
+					break;
+				case 2:
+					wf = WAL_B;
+					wr = WAL_L;
+					wb = WAL_T;
+					wl = WAL_R;
+					ef = EXP_B;
+					er = EXP_L;
+					eb = EXP_T;
+					el = EXP_R;
+					break;
+				case 3:
+					wf = WAL_L;
+					wr = WAL_T;
+					wb = WAL_R;
+					wl = WAL_B;
+					ef = EXP_L;
+					er = EXP_T;
+					eb = EXP_R;
+					el = EXP_B;
+					break;
+				}
+			}
+			
+			//choose path
+			if (!API_wallFront() && nodeList[nodeID - 1][ef])
+			{
+				direction = updateDir(direction, 0);
+				nodeList[nodeID - 1][ef] = false;
+			}
+			else if (!API_wallLeft() && nodeList[nodeID - 1][el])
+			{
+				API_turnLeft();
+				direction = updateDir(direction, 3);
+				nodeList[nodeID - 1][el] = false;
+			}
+			else if (!API_wallRight() && nodeList[nodeID - 1][er])
+			{
+				API_turnRight();
+				direction = updateDir(direction, 1);
+				nodeList[nodeID - 1][er] = false;
 			}
 			else
 			{
-				//choose path
-				if (!API_wallFront())
-				{
-					direction = updateDir(direction, 0);
-					nodeList[nodeID - 1][ef] = false;
-				}
-				else if (!API_wallLeft())
-				{
-					API_turnLeft();
-					direction = updateDir(direction, 3);
-					nodeList[nodeID - 1][el] = false;
-				}
-				else if (!API_wallRight())
-				{
-					API_turnRight();
-					direction = updateDir(direction, 1);
-					nodeList[nodeID - 1][er] = false;
-				}
-				else
-				{
-					simLog("\tERROR: expected node class to not be DEADEND");
-					API_turnRight();
-					API_turnRight();
-					direction = updateDir(direction, 2);
-				}
+				simLog("\tERROR: expected node class to not be DEADEND");
+				API_turnRight();
+				API_turnRight();
+				direction = updateDir(direction, 2);
 			}
 
 		}
