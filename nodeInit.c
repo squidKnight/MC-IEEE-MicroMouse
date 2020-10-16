@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/13/20
 Purpose:initialize the nodeList and mms sim.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include "API.h"
@@ -17,7 +17,7 @@ RETURNS: short int nodeList[NODES][DATA]
 	nodeList: the nodeList array. Directly manipulated instead of being passed back.
 NOTES:
 	Primary function to interact with nodeList array for initialization.
-	Assumes the micromouse is currently on an outside corner of the maze and not facing outwards.
+	Assumes the micromouse is currently on the "bottom left" outside corner of the maze facing "up" and not facing outwards.
 CAUTION:
 	Manipulates the nodeList array directly and wipes all data from it.
 */
