@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/15/20
 Purpose: find the shortest path to a given node from a origin node in the nodeList array using Dijkstra's algorithm.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
