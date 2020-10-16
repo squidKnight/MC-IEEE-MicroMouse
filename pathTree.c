@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/15/20
 Purpose: generate a minimum spanning tree from a given node to all other nodes.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
@@ -29,9 +29,6 @@ NOTES:
 CAUTION:
 	Interacts with the nodeList array passed to it directly.
 	Manipulates the holdList array passed to it directly.
-	Currently gets stuck in a loop if the start node is a node(if it's a corner and not a deadend, traveling to it from any other node
-		will cause the micromouse to pass over it and continue to the opposite node connected to it and link them together instead).
-		Need to test if solved with new implementation.
 */
 void pathTree(bool nodeList[NODES][DATA], short int holdList[NODES], short int nodeCurrent)
 {
