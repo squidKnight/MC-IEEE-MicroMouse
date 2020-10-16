@@ -2,6 +2,7 @@
 Written by Mathazzar
 Last modified: 10/15/20
 Purpose: return the micromouse from an arbitrary point in the maze to nodeNext.
+Status: FINISHED, TESTED
 */
 
 #include <stdio.h>
