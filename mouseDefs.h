@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/14/20
 Purpose: store universal constants for data.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #pragma once
