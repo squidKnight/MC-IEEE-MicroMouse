@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 10/15/20
 Purpose: choose next not fully explored node and travel to it.
-Status: UNFINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include "API.h"
