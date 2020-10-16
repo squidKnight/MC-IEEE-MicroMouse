@@ -2,7 +2,7 @@
 Written by squidKnight, Mathazzar
 Last modified: 10/15/20
 Purpose: scan the maze.
-Status: FINISHED, NOT TESTED
+Status: FINISHED, TESTED
 */
 
 #include <stdbool.h>
