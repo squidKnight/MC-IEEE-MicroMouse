@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 10/15/20
+Last modified: 10/24/20
 Purpose: run the program on the simulator, which requires a main.c
 
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
@@ -20,6 +20,7 @@ void stackPath(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short 
 short int getID(short int position[2]); //generates unique ID for a node based on it's x-y coords
 short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short int position[2], short int direction, short int nodeNext); //moves the micromouse to nodeNext from anywhere in the maze
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
+void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2]);
 
 int main()
 {
@@ -80,7 +81,9 @@ int main()
 		stackPath(nodeList, pathList, holdList, getID(position), nodeCurrent);
 		//^^^^final step to define points on 16x16 grid for smoothing, further code here can only be done for the simulator's sake.
 		//Final product code can't be tested in the simulator beyond this point, and requires either a physical micromouse and maze, or other simulation software to test with.
-		direction = rtb(nodeList, pathList, position, direction, nodeCurrent);
+		short int smoothList[NODES * 2];
+		smootherV0(pathList, smoothList);
+		//direction = rtb(nodeList, pathList, position, direction, nodeCurrent);
 	}
 
 	return 0;
