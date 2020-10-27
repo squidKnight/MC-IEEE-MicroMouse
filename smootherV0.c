@@ -1,9 +1,10 @@
 /*
-Written by , Mathazzar
-Last modified: 10/24/20
+Written by Mathazzar
+Last modified: 10/27/20
 Purpose: take the path defined during the exploration phase and smooth it for optimized final traversal.
 Status: NOT FINISHED, TESTED
 NOTE: currently one of several potential implementations of smoothing operations.
+	Probably needs to be rewritten to be more elegant/ not execute innefficient code.
 */
 
 #include <stdio.h>
@@ -17,8 +18,21 @@ static short int getYtrans(short int nodeID);
 static short int getXold(short int nodeID);
 static short int getXtrans(short int nodeID);
 static short int getIDtrans(short int nodeID);
-static short int direction(short int nodeCurrent, short int nodeNext);
+static short int directionCheck(short int nodeCurrent, short int nodeNext);
 
+/*void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
+INPUTS: short int pathList[NODES / 2], short int smoothList[NODES * 2]
+	pathList: the pathList array, storing the 16x16 grid node-to-node path.
+	smoothList: blank array to be filled by smootherV0() with a more granular version of pathList.
+RETURNS: short int pathList[NODES / 2], short int smoothList[NODES * 2]
+	pathList: should return unmodified.
+	smoothList: directly modified by smootherV0(), provides a more granular version of pathList with smoothed movements.
+NOTES:
+	Implemented to have smoothList array created beforehand, and assumes it to be blank and initializes it.
+CAUTION:
+	Interacts with the pathList array passed to it directly.
+	Manipulates the smoothList array passed to it directly.
+*/
 void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 {
 	simLog("Smoothing final path...");
@@ -30,7 +44,7 @@ void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 	smoothList[0] = getIDtrans(pathList[0]);
 	fprintf(stderr, "pathList[0] %d == smoothList[0] %d\n", pathList[0], smoothList[0]);
 	fflush(stderr);
-	switch (direction(pathList[0], pathList[1]))
+	switch (directionCheck(pathList[0], pathList[1]))
 	{
 	case 0:
 		smoothList[1] = smoothList[0] + 32;
@@ -50,6 +64,8 @@ void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 		fflush(stderr);
 		break;
 	}
+	fprintf(stderr, ", smoothList[%d] %d\n", 1, smoothList[1]);
+	fflush(stderr);
 	for (int i = 1; i < NODES / 2; i++)
 	{
 		if (pathList[i] != INFINITY)
@@ -59,7 +75,7 @@ void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 			fflush(stderr);
 
 			//add connector
-			switch (direction(pathList[i], pathList[i + 1]))
+			switch (directionCheck(pathList[i], pathList[i + 1]))
 			{
 			case 0:
 				smoothList[i * RATIO + 1] = smoothList[i * RATIO] + 32;
@@ -166,7 +182,7 @@ static short int getIDtrans(short int nodeID)
 	return (getYtrans(nodeID) * 32) + getXtrans(nodeID) + 33;
 }
 
-static short int direction(short int nodeCurrent, short int nodeNext)
+static short int directionCheck(short int nodeCurrent, short int nodeNext)
 {
 	if (nodeNext == nodeCurrent + 16)
 		return 0;
