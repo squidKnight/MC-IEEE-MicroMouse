@@ -1,8 +1,8 @@
 /*
 Written by Mathazzar
-Last modified: 10/27/20
+Last modified: 10/30/20
 Purpose: take the path defined during the exploration phase and smooth it for optimized final traversal.
-Status: NOT FINISHED, TESTED
+Status: FINISHED, TESTED
 NOTE: currently one of several potential implementations of smoothing operations.
 	Probably needs to be rewritten to be more elegant/ not execute innefficient code.
 */
@@ -19,6 +19,7 @@ static short int getXold(short int nodeID);
 static short int getXtrans(short int nodeID);
 static short int getIDtrans(short int nodeID);
 static short int directionCheck(short int nodeCurrent, short int nodeNext);
+static bool cornerCheck(short int nodeCurrent, short int nodeInterim, short int nodeNext);
 
 /*void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 INPUTS: short int pathList[NODES / 2], short int smoothList[NODES * 2]
@@ -99,7 +100,6 @@ void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 			fflush(stderr);
 		}
 	}
-
 	//Verify copied path is the same
 	for (int i = 15; i > -1; i--)
 	{
@@ -128,6 +128,63 @@ void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2])
 		fprintf(stderr, "\n");
 		fflush(stderr);
 	}
+	for (int i = 32; i > -1; i--)
+	{
+		for (int j = 0; j < 33; j++)
+		{
+			bool exists = false;
+			for (int k = 0; k < NODES * 2; k++)
+			{
+				if (smoothList[k] == (i * 32) + j)
+				{
+					exists = true;
+					break;
+				}
+			}
+			if (exists)
+			{
+				fprintf(stderr, "x ");
+				fflush(stderr);
+			}
+			else
+			{
+				fprintf(stderr, "o ");
+				fflush(stderr);
+			}
+		}
+		fprintf(stderr, "\n");
+		fflush(stderr);
+	}
+
+	//Reduce corners
+	simLog("Optimizing diagonals...");
+	//delete corners where possible
+	for (int i = 0; i < NODES - 1; i++)
+	{
+		if (pathList[i] == INFINITY)
+			break;
+		if (cornerCheck(pathList[i], pathList[i + 1], pathList[i + 2]))
+		{
+			fprintf(stderr, "nodeID %d/%d is a corner(%d, %d), removing.\n", pathList[i + 1], smoothList[i * RATIO], pathList[i], pathList[i + 2]);
+			fflush(stderr);
+			smoothList[(i + 1) * RATIO] = INFINITY * 2;
+		}
+	}
+	//shift array left to fill empty spaces from corners being removed
+	for (int i = 0; i < NODES * 2 - 1; i++)
+	{
+		if (smoothList[i] == INFINITY * 2)
+		{
+			if (smoothList[i + 1] != INFINITY * 2)
+				for (int j = i; j < NODES * 2; j++)
+				{
+					smoothList[i] = smoothList[i + 1];
+				}
+			else
+				break;
+		}
+	}
+	//Verify data integrity
 	for (int i = 32; i > -1; i--)
 	{
 		for (int j = 0; j < 33; j++)
@@ -194,4 +251,33 @@ static short int directionCheck(short int nodeCurrent, short int nodeNext)
 		return 3;
 	else
 		return -1;
+}
+
+static bool cornerCheck(short int nodeCurrent, short int nodeInterim, short int nodeNext)
+{
+	if (nodeInterim == nodeCurrent + 16 || nodeInterim == nodeCurrent - 16)
+	{
+		if (nodeNext == nodeInterim + 1 || nodeNext == nodeInterim - 1)
+		{
+			simLog("NE");
+			return true;
+		}
+		else
+			return false;
+	}
+	else if (nodeInterim == nodeCurrent + 1 || nodeInterim == nodeCurrent - 1)
+	{
+		if (nodeNext == nodeInterim + 16 || nodeNext == nodeInterim - 16)
+		{
+			simLog("SW");
+			return true;
+		}
+		else
+			return false;
+	}
+	else
+	{
+		simLog("ERROR: nodeCurrent and nodeInterim don't appear to be adjacent.");
+		return false;
+	}
 }
