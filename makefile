@@ -11,7 +11,6 @@ OBJ = main.o \
 	  API.o \
 	  changeDir.o \
 	  getID.o \
-    main.o \
 	  nodeCheck.o \
 	  nodeInit.o \
 	  pathChooseAlt.o \
@@ -19,6 +18,7 @@ OBJ = main.o \
 	  rtb.o \
 	  scan.o \
 	  simLog.o \
+	  smootherV0.o \
 	  stackPath.o \
 	  updateDir.o \
 	  updatePos.o \
