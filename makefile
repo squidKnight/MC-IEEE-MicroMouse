@@ -22,8 +22,8 @@ OBJ = main.o \
 	  stackPath.o \
 	  updateDir.o \
 	  updatePos.o \
-	  smoother.o \
-	  smoother.o \
+	  smootherV0.o \
+	  smootherV1.o \
 
 
 %.o : %.c
