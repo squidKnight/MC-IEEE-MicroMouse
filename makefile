@@ -11,7 +11,6 @@ OBJ = main.o \
 	  API.o \
 	  changeDir.o \
 	  getID.o \
-    main.o \
 	  nodeCheck.o \
 	  nodeInit.o \
 	  pathChooseAlt.o \
@@ -22,6 +21,8 @@ OBJ = main.o \
 	  stackPath.o \
 	  updateDir.o \
 	  updatePos.o \
+	  smoother.o \
+	  smoother.o \
 
 
 %.o : %.c
