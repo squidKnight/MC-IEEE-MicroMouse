@@ -1,5 +1,5 @@
 #Written by squidKnight
-#Last modified: 04/03/20
+#Last modified: 11/06/20
 #really only needed for the simulator (but would be nice to include in final prorgam)
 #based off of these examples: www.cs.colby.edu/maxwell/courses/tutorials/maketutor/
 #To use in the simulator, type "make mouseSim.x" in the "Build Command" space
@@ -24,6 +24,7 @@ OBJ = main.o \
 	  updatePos.o \
 	  smootherV0.o \
 	  smootherV1.o \
+	  smootherV2.o \
 
 
 %.o : %.c
