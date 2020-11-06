@@ -23,6 +23,7 @@ OBJ = main.o \
 	  updatePos.o \
 	  smootherV0.o \
 	  smootherV1.o \
+	  smootherV2.o \
 
 
 %.o : %.c
