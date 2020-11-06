@@ -1,6 +1,6 @@
 /*
 Written by squidKnight, Mathazzar
-Last modified: 11/1/20
+Last modified: 11/6/20
 Purpose: run the program on the simulator, which requires a main.c
 
 NOTE: ONLY USED FOR SIMULATOR, NOT FOR USE ON ARDUINO!!
@@ -22,6 +22,7 @@ short int rtb(bool nodeList[NODES][DATA], short int pathList[NODES / 2], short i
 short int updateDir(short int direction, short int relativeChange); //updates the direction the micromouse is facing
 void smootherV0(short int pathList[NODES / 2], short int smoothList[NODES * 2]);
 void smootherV1(short int pathList[NODES / 2], short int smoothList[NODES][2]);
+void smootherV2(short int pathList[NODES / 2], short int smoothList[NODES][2]);
 
 int main()
 {
@@ -86,6 +87,7 @@ int main()
 		smootherV0(pathList, smoothList_0);
 		short int smoothList_1[NODES][2];
 		smootherV1(pathList, smoothList_1);
+		smootherV2(pathList, smoothList_1);
 		//direction = rtb(nodeList, pathList, position, direction, nodeCurrent);
 	}
 
