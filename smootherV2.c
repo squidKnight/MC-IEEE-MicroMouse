@@ -2,7 +2,7 @@
 Written by Mathazzar
 Last modified: 11/6/20
 Purpose: take the path defined during the exploration phase and smooth it for optimized final traversal.
-Status: NOT FINISHED, UNTESTED
+Status: FINISHED, TESTED
 NOTE: currently one of several potential implementations of smoothing operations.
 Probably needs to be rewritten to be more elegant/ not execute innefficient code.
 Smoothing algorithm based on code in article at https://medium.com/@jaems33/understanding-robot-motion-path-smoothing-5970c8363bc4
