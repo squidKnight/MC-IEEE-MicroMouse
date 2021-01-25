@@ -1,6 +1,6 @@
 /*
 Written by Mathazzar
-Last modified: 11/6/20
+Last modified: 1/25/21
 Purpose: take the path defined during the exploration phase and smooth it for optimized final traversal.
 Status: FINISHED, TESTED
 NOTE: currently one of several potential implementations of smoothing operations.
@@ -13,7 +13,7 @@ Smoothing algorithm based on code in article at https://medium.com/@jaems33/unde
 
 void simLog(char* text); //modified from main.c in mms example (https://github.com/mackorone/mms-c)
 
-static int RATIO = 36; //ratio of side lengths from 16x16 grid to smoothed grid (currently 16x16-576x576, so 36:1)
+static int RATIO = 18; //ratio of side lengths from 16x16 grid to smoothed grid (currently 16x16-288x288, so 18:1)
 static short int getYold(short int nodeID);
 static short int getYtrans(short int nodeID);
 static short int getXold(short int nodeID);
@@ -152,9 +152,9 @@ void smootherV2(short int pathList[NODES / 2], short int smoothList[NODES][2])
 		fprintf(stderr, "\n");
 		fflush(stderr);
 	}
-	for (int y = 576; y > -1; y--)
+	for (int y = (RATIO * 16); y > -1; y--)
 	{
-		for (int x = 0; x < 577; x++)
+		for (int x = 0; x < (RATIO * 16) + 1; x++)
 		{
 			bool exists = false;
 			bool existsW = false;
@@ -222,9 +222,9 @@ void smootherV2(short int pathList[NODES / 2], short int smoothList[NODES][2])
 		}
 	}
 	//Verify data integrity
-	for (int y = 576; y > -1; y--)
+	for (int y = (RATIO * 16); y > -1; y--)
 	{
-		for (int x = 0; x < 577; x++)
+		for (int x = 0; x < (RATIO * 16) + 1; x++)
 		{
 			bool existsP = false;
 			bool existsS = false;
@@ -302,9 +302,9 @@ void smootherV2(short int pathList[NODES / 2], short int smoothList[NODES][2])
 	smoothList[i][1] = tempList[i][1];
 	}*/
 	//Verify data integrity
-	for (int y = 576; y > -1; y--)
+	for (int y = (RATIO * 16); y > -1; y--)
 	{
-		for (int x = 0; x < 577; x++)
+		for (int x = 0; x < (RATIO * 16) + 1; x++)
 		{
 			bool existsP = false;
 			bool existsS = false;
@@ -375,7 +375,7 @@ static short int getXtrans(short int nodeID)
 
 static short int getIDtrans(short int nodeID)
 {
-	return (getYtrans(nodeID) * 576) + getXtrans(nodeID) + 577;
+	return (getYtrans(nodeID) * (RATIO * 16)) + getXtrans(nodeID) + (RATIO * 16) + 1;
 }
 
 static short int directionCheck(short int nodeCurrent, short int nodeNext)
